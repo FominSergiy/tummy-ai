@@ -1,11 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-interface UploadComponentProps {
+interface UploadProps {
   onUpload: () => void;
 }
 
-export default function UploadComponent({ onUpload }: UploadComponentProps) {
+export default function Upload({ onUpload }: UploadProps) {
   return (
     <TouchableOpacity style={styles.uploadContainer} onPress={onUpload}>
       <View style={styles.uploadContent}>

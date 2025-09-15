@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import {
-  View,
+  FlatList,
+  Modal,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  Modal,
-  FlatList,
+  View,
 } from 'react-native';
 
 export type UploadType = 'text' | 'audio' | 'picture';
@@ -16,9 +16,9 @@ interface UploadTypeDropdownProps {
 }
 
 const uploadTypes: { key: UploadType; label: string; icon: string }[] = [
-  { key: 'text', label: 'Text', icon: '📝' },
-  { key: 'audio', label: 'Audio', icon: '🎵' },
   { key: 'picture', label: 'Picture', icon: '📷' },
+  { key: 'audio', label: 'Audio', icon: '🎤' },
+  { key: 'text', label: 'Text', icon: '📝' },
 ];
 
 export default function UploadTypeDropdown({
@@ -83,9 +83,6 @@ export default function UploadTypeDropdown({
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: 60,
-    left: 20,
     zIndex: 1000,
   },
   dropdown: {
@@ -121,7 +118,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     justifyContent: 'flex-start',
-    paddingTop: 120,
+    paddingTop: 100,
     paddingLeft: 20,
   },
   modalContent: {

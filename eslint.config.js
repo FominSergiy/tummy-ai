@@ -36,7 +36,7 @@ module.exports = defineConfig([
       'react-native/no-unused-styles': 'warn',
       'react-native/split-platform-components': 'warn',
       'react-native/no-inline-styles': 'warn',
-      'react-native/no-color-literals': 'warn',
+      // 'react-native/no-color-literals': 'warn',
       'react-native/no-raw-text': 'off', // Can be too strict for simple text
       'react-native/no-single-element-style-arrays': 'warn',
 
