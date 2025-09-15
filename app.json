@@ -43,6 +43,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5c882972-078f-493a-ade6-50a629fe5290"
+      }
+    },
+    "owner": "sergiy.fomin"
   }
 }
