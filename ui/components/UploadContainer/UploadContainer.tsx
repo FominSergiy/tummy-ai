@@ -55,7 +55,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginLeft: 20,
     marginBottom: 20,
-    zIndex: 1000,
+    marginTop: -20,
+    zIndex: 1,
   },
   uploadSection: {
     flex: 1,

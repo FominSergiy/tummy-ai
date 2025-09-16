@@ -169,8 +169,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectButton: {
-    width: 200,
-    height: 200,
+    width: 300,
+    height: 300,
     borderRadius: 20,
     backgroundColor: '#f0f0f0',
     borderWidth: 2,
