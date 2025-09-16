@@ -1,19 +1,26 @@
 // https://docs.expo.dev/guides/using-eslint/
-const { defineConfig } = require('eslint/config');
-const expoConfig = require('eslint-config-expo/flat');
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
+import expoConfig from 'eslint-config-expo/flat.js';
+import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactNative from 'eslint-plugin-react-native';
+import { defineConfig } from 'eslint/config';
 
-module.exports = defineConfig([
+// const expoConfig = require('eslint-config-expo/flat');
+
+export default defineConfig([
   expoConfig,
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     plugins: {
-      react: require('eslint-plugin-react'),
-      'react-hooks': require('eslint-plugin-react-hooks'),
-      'react-native': require('eslint-plugin-react-native'),
-      '@typescript-eslint': require('@typescript-eslint/eslint-plugin'),
+      react,
+      'react-hooks': reactHooks,
+      'react-native': reactNative,
+      '@typescript-eslint': tseslint,
     },
     languageOptions: {
-      parser: require('@typescript-eslint/parser'),
+      parser: tsParser,
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
