@@ -12,9 +12,9 @@
     "build:backend": "tsc backend/server.ts --outDir dist --target ES2022 --module ES2022 --moduleResolution bundler --allowSyntheticDefaultImports",
     "start:backend": "yarn build:backend && node dist/backend/server.js",
     "dev:backend": "tsx backend/server.ts",
-    "db:start:daemon": "docker compose -f backend/docker-compose.yml up -d",
-    "db:start": "docker compose -f backend/docker-compose.yml up",
-    "db:stop": "docker compose -f backend/docker-compose.yml down",
+    "services:start:daemon": "docker compose -f backend/docker-compose.yml up -d",
+    "services:start": "docker compose -f backend/docker-compose.yml up",
+    "services:stop": "docker compose -f backend/docker-compose.yml down",
     "prisma:generate": "yarn prisma generate --schema backend/prisma/schema.prisma",
     "prisma:migrate": "yarn prisma migrate dev --schema backend/prisma/schema.prisma",
     "lint": "expo lint",
@@ -23,6 +23,8 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.890.0",
+    "@aws-sdk/lib-storage": "^3.890.0",
     "@expo/vector-icons": "^15.0.2",
     "@prisma/client": "^6.16.2",
     "@react-navigation/bottom-tabs": "^7.4.0",
