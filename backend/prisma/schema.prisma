@@ -1,0 +1,38 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+    output   = "../app/generated/prisma"
+}
+
+enum FileType {
+    IMAGE
+    TEXT
+    AUDIO
+}
+
+model FileUpload {
+    id       Int      @id @default(autoincrement())
+    userId   Int      @map("user_id")
+    type     FileType
+    filePath String   @map("file_path")
+    user     User?    @relation(fields: [userId], references: [id])
+
+    @@map("file_uploads")
+}
+
+model User {
+    id          Int          @id @default(autoincrement())
+    email       String       @unique
+    name        String
+    fileUploads FileUpload[]
+
+    @@map("users")
+}
+
+// TODO: add table to store LLM responses
+
+// TODO: add table to store LLM-processed ingridients list
