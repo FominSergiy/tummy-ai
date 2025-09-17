@@ -1,0 +1,48 @@
+import React from 'react';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TextInputProps,
+  View,
+} from 'react-native';
+
+interface InputFieldProps {
+  label: string;
+  textInputProps: TextInputProps;
+}
+const InputField = ({ label, textInputProps }: InputFieldProps) => {
+  return (
+    <View style={styles.inputContainer}>
+      <Text style={styles.label}>{label}</Text>
+      <TextInput
+        {...textInputProps}
+        style={styles.input}
+        placeholderTextColor="#999"
+      />
+    </View>
+  );
+};
+
+export { InputField };
+
+const styles = StyleSheet.create({
+  inputContainer: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    marginBottom: 8,
+  },
+  input: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    color: '#1a1a1a',
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+  },
+});
