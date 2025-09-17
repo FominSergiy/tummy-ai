@@ -11,6 +11,24 @@ import {
 import { TummyAILogo } from '../Logo';
 import { InputField, SignButton, Title } from './components';
 
+const testRegex = (str: string, regex: RegExp) => {
+  // skip using rule for empty string
+  return regex.test(str);
+};
+
+// skip empty strings
+const isValidEmail = (email: string) => {
+  const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return email ? testRegex(email, regex) : true;
+};
+
+const isValidPassword = (password: string) => {
+  // 8 characters - 1 uppercase, 1 special character and 1 digit
+  const regex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}/;
+  return password ? testRegex(password, regex) : true;
+};
+
 export function Login() {
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [isSignup, setIsSignup] = useState<boolean>(false);
@@ -81,6 +99,10 @@ export function Login() {
               keyboardType: 'email-address',
               autoComplete: 'email',
             }}
+            warning={{
+              showWarning: isSignup ? !isValidEmail(email) : false,
+              warningMessage: 'Please enter valid email',
+            }}
           />
 
           <InputField
@@ -91,6 +113,12 @@ export function Login() {
               placeholder: 'Enter your password',
               secureTextEntry: true,
               autoComplete: 'password',
+            }}
+            warning={{
+              // skip warning display for sign up - password has to be valid at this point
+              showWarning: isSignup ? !isValidPassword(password) : false,
+              warningMessage:
+                'Your password has to have at least 1 Upper-case char, 1 digit, and 1 special case char',
             }}
           />
 
@@ -104,11 +132,21 @@ export function Login() {
                 secureTextEntry: true,
                 autoComplete: 'password',
               }}
+              warning={{
+                showWarning: !(password === confirmPassword),
+                warningMessage: 'Passwords have to match',
+              }}
             />
           )}
 
           <SignButton
             isSignUp={isSignup}
+            lockSignUp={
+              !isValidPassword(password) ||
+              !isValidEmail(email) ||
+              !(password === confirmPassword) ||
+              !email
+            }
             loading={loading}
             handleSubmit={handleSubmit}
             toggleMode={toggleMode}

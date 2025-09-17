@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface SignButtonProps {
   isSignUp: boolean;
+  lockSignUp: boolean;
   loading: boolean;
   handleSubmit: () => void;
   toggleMode: () => void;
@@ -10,16 +11,20 @@ interface SignButtonProps {
 
 export const SignButton = ({
   isSignUp,
+  lockSignUp,
   loading,
   handleSubmit,
   toggleMode,
 }: SignButtonProps) => {
+  // lock sign up button ADDITIONALLY if field validations are broken
+  const lockButton = isSignUp ? loading || lockSignUp : loading;
+
   return (
     <View>
       <TouchableOpacity
-        style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+        style={[styles.submitButton, lockButton && styles.submitButtonDisabled]}
         onPress={handleSubmit}
-        disabled={loading}
+        disabled={lockButton}
       >
         <Text style={styles.submitButtonText}>
           {loading ? 'Please wait...' : isSignUp ? 'Sign Up' : 'Sign In'}

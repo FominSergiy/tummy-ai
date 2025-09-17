@@ -9,9 +9,12 @@ import {
 
 interface InputFieldProps {
   label: string;
+  warning: { warningMessage?: string; showWarning: boolean };
   textInputProps: TextInputProps;
 }
-const InputField = ({ label, textInputProps }: InputFieldProps) => {
+
+const InputField = ({ label, warning, textInputProps }: InputFieldProps) => {
+  const { warningMessage, showWarning } = warning;
   return (
     <View style={styles.inputContainer}>
       <Text style={styles.label}>{label}</Text>
@@ -20,6 +23,7 @@ const InputField = ({ label, textInputProps }: InputFieldProps) => {
         style={styles.input}
         placeholderTextColor="#999"
       />
+      {showWarning && <Text style={styles.warning}>{warningMessage}</Text>}
     </View>
   );
 };
@@ -44,5 +48,10 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
     borderWidth: 1,
     borderColor: '#e9ecef',
+  },
+  warning: {
+    color: '#c91d22',
+    fontSize: 14,
+    padding: 8,
   },
 });
