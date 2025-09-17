@@ -1,3 +1,3 @@
-export * from './Login/Login';
+export * from './Login';
 export * from './Logo';
 export * from './UploadContainer';
