@@ -5,7 +5,7 @@ import UploadTypeDropdown, { UploadType } from './components/Dropdown';
 import PictureUpload from './components/PictureUpload';
 import TextInputComponent from './components/TextInput';
 
-export default function UploadContainer() {
+const UploadContainer = () => {
   const [selectedUploadType, setSelectedUploadType] =
     useState<UploadType>('picture');
 
@@ -40,7 +40,7 @@ export default function UploadContainer() {
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -65,3 +65,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
 });
+
+export { UploadContainer };

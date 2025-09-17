@@ -1,4 +1,4 @@
-import UploadContainer from '@/ui/components';
+import UploadContainer from '@/src/components';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
