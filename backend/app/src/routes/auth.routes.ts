@@ -1,7 +1,7 @@
 import { prisma } from '@/backend/prisma/client';
 import { compare, hash } from 'bcrypt';
 import { FastifyInstance, HookHandlerDoneFunction } from 'fastify';
-import { generateToken } from '../services';
+import { jwtService } from '../services';
 
 type TBody = { email: string; password: string };
 type TResponse = {
@@ -95,7 +95,7 @@ export const loginRoute = async (fastify: FastifyInstance) => {
 
           const { id, email } = user;
           // generate
-          const jwt = generateToken({
+          const jwt = jwtService.generateToken({
             userId: id,
             email,
             timestamp: Date.now(),
