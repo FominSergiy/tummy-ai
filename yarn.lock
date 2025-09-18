@@ -1935,6 +1935,14 @@
     ajv-formats "^3.0.1"
     fast-uri "^3.0.0"
 
+"@fastify/cors@^11.1.0":
+  version "11.1.0"
+  resolved "https://registry.yarnpkg.com/@fastify/cors/-/cors-11.1.0.tgz#09f79748f08f147d19cfc3f1807b59791bc77cf0"
+  integrity sha512-sUw8ed8wP2SouWZTIbA7V2OQtMNpLj2W6qJOYhNdcmINTu6gsxVYXjQiM9mdi8UUDlcoDDJ/W2syPo1WB2QjYA==
+  dependencies:
+    fastify-plugin "^5.0.0"
+    toad-cache "^3.7.0"
+
 "@fastify/error@^4.0.0":
   version "4.2.0"
   resolved "https://registry.npmjs.org/@fastify/error/-/error-4.2.0.tgz"
@@ -5441,6 +5449,11 @@ fast-xml-parser@5.2.5:
   integrity sha512-pfX9uG9Ki0yekDHx2SiuRIyFdyAr1kMIMitPvb0YBo8SUfKvia7w7FIyd/l6av85pFYRhZscS75MwMnbvY+hcQ==
   dependencies:
     strnum "^2.1.0"
+
+fastify-plugin@^5.0.0:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/fastify-plugin/-/fastify-plugin-5.0.1.tgz#82d44e6fe34d1420bb5a4f7bee434d501e41939f"
+  integrity sha512-HCxs+YnRaWzCl+cWRYFnHmeRFyR5GVnJTAaCJQiYzQSDwK9MgJdyAsuL3nh0EWRCYMgQ5MeziymvmAhUHYHDUQ==
 
 fastify@^5.6.0:
   version "5.6.0"

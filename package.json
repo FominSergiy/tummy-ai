@@ -4,7 +4,7 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "expo start",
+    "start:frontend": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
@@ -26,6 +26,7 @@
     "@aws-sdk/client-s3": "^3.890.0",
     "@aws-sdk/lib-storage": "^3.890.0",
     "@expo/vector-icons": "^15.0.2",
+    "@fastify/cors": "^11.1.0",
     "@prisma/client": "^6.16.2",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
@@ -60,8 +61,8 @@
     "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
-    "@types/jsonwebtoken": "^9.0.10",
     "@types/bcrypt": "^6.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.5.2",
     "@types/react": "~19.1.0",
     "@typescript-eslint/eslint-plugin": "^8.44.0",

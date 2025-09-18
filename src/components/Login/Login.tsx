@@ -8,6 +8,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import { apiService } from '../../services/api.service';
 import { TummyAILogo } from '../Logo';
 import { InputField, SignButton, Title } from './components';
 
@@ -58,13 +59,24 @@ export function Login() {
     setLoading(true);
 
     try {
-      // TODO: Implement actual authentication logic
-      // For now, just simulate a successful login
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setLoggedIn(true);
-      // TODO: do something with caught error
+      if (isSignup) {
+        await apiService.signup({ email, password });
+        Alert.alert('Success', 'Account created successfully! Please log in.');
+        setIsSignup(false);
+        setPassword('');
+        setConfirmPassword('');
+      } else {
+        const response = await apiService.login({ email, password });
+        if (response.success) {
+          setLoggedIn(true);
+        }
+      }
     } catch (error) {
-      Alert.alert('Error', 'Authentication failed. Please try again.');
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Authentication failed. Please try again.';
+      Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
     }
