@@ -17,7 +17,7 @@ CREATE TABLE "app"."file_uploads" (
 CREATE TABLE "app"."users" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );

@@ -66,6 +66,11 @@ export default defineConfig([
     },
   },
   {
-    ignores: ['dist/*', 'node_modules/*', '*.config.js'],
+    ignores: [
+      'dist/*',
+      'node_modules/*',
+      '*.config.js',
+      'backend/prisma/generated/*',
+    ],
   },
 ]);
