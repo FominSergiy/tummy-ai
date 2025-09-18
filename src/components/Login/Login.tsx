@@ -1,5 +1,5 @@
 import { Redirect } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -39,6 +39,30 @@ export function Login() {
   const [confirmPassword, setConfirmPassword] = useState<string>('');
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
+
+  // Check if user is already authenticated on component mount
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      try {
+        const isAuthenticated = await apiService.isAuthenticated();
+        if (isAuthenticated) {
+          setLoggedIn(true);
+        }
+      } catch (error) {
+        console.error('Error checking authentication:', error);
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
+
+    checkAuthentication();
+  }, []);
+
+  // Show loading while checking authentication
+  if (checkingAuth) {
+    return null; // or a loading spinner component
+  }
 
   // if all well we do redirect
   if (loggedIn) {
