@@ -9,9 +9,9 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build:backend": "tsc backend/server.ts --outDir dist --target ES2022 --module ES2022 --moduleResolution bundler --allowSyntheticDefaultImports",
-    "start:backend": "yarn build:backend && node dist/backend/server.js",
-    "dev:backend": "tsx backend/server.ts",
+    "build:backend": "tsc backend/app/src/server.ts --outDir dist --target ES2022 --module ES2022 --moduleResolution bundler --allowSyntheticDefaultImports",
+    "start:backend": "yarn build:backend && node dist/backend/app/src/server.js",
+    "dev:backend": "tsx backend/app/src/server.ts",
     "services:start:daemon": "docker compose -f backend/docker-compose.yml up -d",
     "services:start": "docker compose -f backend/docker-compose.yml up",
     "services:stop": "docker compose -f backend/docker-compose.yml down",
@@ -58,6 +58,7 @@
     "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
+    "@types/node": "^24.5.2",
     "@types/react": "~19.1.0",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
