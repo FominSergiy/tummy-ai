@@ -1,6 +1,5 @@
 import Fastify from 'fastify';
-import { pingRoutes } from './ping';
-import { signUpRoute } from './routes';
+import { loginRoute, pingRoutes, signUpRoute } from './routes';
 
 const fastify = Fastify({
   logger: true,
@@ -9,6 +8,7 @@ const fastify = Fastify({
 // Register route plugins
 fastify.register(pingRoutes);
 fastify.register(signUpRoute);
+fastify.register(loginRoute);
 
 /**
  * Run the server!
