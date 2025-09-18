@@ -1,13 +1,14 @@
 import Fastify from 'fastify';
+import { pingRoutes } from './ping';
+import { signUpRoute } from './routes';
 
 const fastify = Fastify({
   logger: true,
 });
 
-// Declare a route
-fastify.get('/', function (request, reply) {
-  reply.send({ hello: 'world' });
-});
+// Register route plugins
+fastify.register(pingRoutes);
+fastify.register(signUpRoute);
 
 /**
  * Run the server!
@@ -22,3 +23,4 @@ const start = async () => {
 };
 
 start();
+export { fastify };
