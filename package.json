@@ -9,7 +9,7 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build:backend": "tsc backend/app/src/server.ts --outDir dist --target ES2022 --module ES2022 --moduleResolution bundler --allowSyntheticDefaultImports",
+    "build:backend": "tsc backend/app/src/server.ts",
     "start:backend": "yarn build:backend && node dist/backend/app/src/server.js",
     "dev:backend": "tsx watch backend/app/src/server.ts --watch=backend/app",
     "services:start:daemon": "docker compose -f backend/docker-compose.yml up -d",
