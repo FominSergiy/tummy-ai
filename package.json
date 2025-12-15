@@ -27,7 +27,7 @@
     "@aws-sdk/lib-storage": "^3.890.0",
     "@expo/vector-icons": "^15.0.2",
     "@fastify/cors": "^11.1.0",
-    "@prisma/client": "^6.16.2",
+    "@prisma/client": "7",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
@@ -76,7 +76,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.1.6",
     "prettier": "^3.6.2",
-    "prisma": "^6.16.2",
+    "prisma": "7",
     "tsx": "^4.19.2",
     "typescript": "~5.9.2"
   },
