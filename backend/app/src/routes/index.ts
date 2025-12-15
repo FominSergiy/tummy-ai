@@ -1,2 +1,2 @@
-export * from './auth.routes';
-export * from './ping.routes';
+export * from './auth.routes.js';
+export * from './ping.routes.js';

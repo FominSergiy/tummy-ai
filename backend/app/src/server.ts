@@ -1,5 +1,5 @@
 import Fastify from 'fastify';
-import { loginRoute, pingRoutes, signUpRoute } from './routes';
+import { loginRoute, pingRoutes, signUpRoute } from './routes/index.js';
 
 const fastify = Fastify({
   logger: true,

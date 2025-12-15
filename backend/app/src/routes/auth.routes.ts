@@ -1,7 +1,7 @@
-import { prisma } from '@/backend/prisma/client';
 import { compare, hash } from 'bcrypt';
 import { FastifyInstance, HookHandlerDoneFunction } from 'fastify';
-import { jwtService } from '../services';
+import { prisma } from '../../../prisma/client.js';
+import { jwtService } from '../services/index.js';
 
 type TBody = { email: string; password: string };
 type TResponse = {
