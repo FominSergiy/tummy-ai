@@ -1,5 +1,11 @@
 import Fastify from 'fastify';
-import { loginRoute, pingRoutes, signUpRoute } from './routes/index.js';
+import {
+  ingridientRouts,
+  loginRoute,
+  pingRoutes,
+  signUpRoute,
+  storageRoutes,
+} from './routes/index.js';
 
 const fastify = Fastify({
   logger: true,
@@ -28,6 +34,8 @@ const start = async () => {
     await fastify.register(pingRoutes);
     await fastify.register(signUpRoute);
     await fastify.register(loginRoute);
+    await fastify.register(storageRoutes);
+    await fastify.register(ingridientRouts);
 
     await fastify.listen({ port: 3000 });
   } catch (err) {

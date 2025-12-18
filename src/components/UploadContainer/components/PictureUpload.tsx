@@ -13,7 +13,7 @@ interface PictureUploadProps {
   onSave: (data: object) => void;
 }
 
-export default function PictureUpload({ onSave }: PictureUploadProps) {
+const PictureUpload = ({ onSave }: PictureUploadProps) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const requestPermissions = async () => {
@@ -158,7 +158,7 @@ export default function PictureUpload({ onSave }: PictureUploadProps) {
       )}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -260,3 +260,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
+export { PictureUpload };
