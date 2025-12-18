@@ -120,6 +120,61 @@ class ApiService {
   ): Promise<T> {
     return this.makeRequest<T>(endpoint, method, data, true);
   }
+
+  // Upload file with multipart/form-data
+  async uploadFile<T>(
+    endpoint: string,
+    fileUri: string,
+    fileName: string,
+    mimeType: string = 'image/jpeg',
+    requiresAuth: boolean = false
+  ): Promise<T> {
+    const url = `${API_BASE_URL}${endpoint}`;
+
+    const formData = new FormData();
+    formData.append('file', {
+      uri: fileUri,
+      name: fileName,
+      type: mimeType,
+    } as any);
+
+    const headers: Record<string, string> = {};
+
+    // Add JWT token to headers for protected routes
+    if (requiresAuth) {
+      const token = await TokenStorage.getToken();
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      } else {
+        throw new Error('Authentication required. Please log in again.');
+      }
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: formData,
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          await TokenStorage.removeToken();
+          throw new Error('Session expired. Please log in again.');
+        }
+
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to upload file');
+      }
+
+      return await response.json();
+    } catch (error) {
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Network error occurred');
+    }
+  }
 }
 
 export const apiService = new ApiService();

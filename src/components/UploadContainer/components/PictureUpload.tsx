@@ -1,6 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   Image,
   StyleSheet,
@@ -8,13 +9,21 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { handleDataType } from '../UploadContainer';
 
 interface PictureUploadProps {
-  onSave: (data: object) => void;
+  onSave: (data: handleDataType) => void;
+  isUploading?: boolean;
 }
 
-const PictureUpload = ({ onSave }: PictureUploadProps) => {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+interface ImageData {
+  uri: string;
+  fileName: string;
+  mimeType: string;
+}
+
+const PictureUpload = ({ onSave, isUploading = false }: PictureUploadProps) => {
+  const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
 
   const requestPermissions = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -48,6 +57,23 @@ const PictureUpload = ({ onSave }: PictureUploadProps) => {
     ]);
   };
 
+  const getFileNameFromUri = (uri: string): string => {
+    const filename = uri.split('/').pop() || `image-${Date.now()}.jpg`;
+    return filename;
+  };
+
+  const getMimeTypeFromUri = (uri: string): string => {
+    const extension = uri.split('.').pop()?.toLowerCase();
+    const mimeTypes: Record<string, string> = {
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      png: 'image/png',
+      gif: 'image/gif',
+      webp: 'image/webp',
+    };
+    return mimeTypes[extension || ''] || 'image/jpeg';
+  };
+
   const takePhoto = async () => {
     const hasPermission = await requestCameraPermissions();
     if (!hasPermission) return;
@@ -61,7 +87,12 @@ const PictureUpload = ({ onSave }: PictureUploadProps) => {
       });
 
       if (!result.canceled && result.assets[0]) {
-        setSelectedImage(result.assets[0].uri);
+        const uri = result.assets[0].uri;
+        setSelectedImage({
+          uri,
+          fileName: getFileNameFromUri(uri),
+          mimeType: getMimeTypeFromUri(uri),
+        });
       }
     } catch (error) {
       console.error('Error taking photo:', error);
@@ -82,7 +113,12 @@ const PictureUpload = ({ onSave }: PictureUploadProps) => {
       });
 
       if (!result.canceled && result.assets[0]) {
-        setSelectedImage(result.assets[0].uri);
+        const uri = result.assets[0].uri;
+        setSelectedImage({
+          uri,
+          fileName: getFileNameFromUri(uri),
+          mimeType: getMimeTypeFromUri(uri),
+        });
       }
     } catch (error) {
       console.error('Error picking image:', error);
@@ -96,22 +132,18 @@ const PictureUpload = ({ onSave }: PictureUploadProps) => {
       return;
     }
 
-    const imageData = {
+    const imageData: handleDataType = {
       type: 'picture',
-      uri: selectedImage,
+      uri: selectedImage.uri,
+      fileName: selectedImage.fileName,
+      mimeType: selectedImage.mimeType,
       timestamp: new Date().toISOString(),
-      source: selectedImage.includes('ImagePicker') ? 'library' : 'camera',
+      source: selectedImage.uri.includes('ImagePicker') ? 'library' : 'camera',
     };
 
     onSave(imageData);
 
-    Alert.alert(
-      'Image Uploaded',
-      `Image uploaded successfully!\nURI: ${selectedImage}`,
-      [{ text: 'OK' }]
-    );
-
-    // Reset for next upload
+    // Reset for next upload after upload completes
     setSelectedImage(null);
   };
 
@@ -123,23 +155,45 @@ const PictureUpload = ({ onSave }: PictureUploadProps) => {
     <View style={styles.container}>
       {selectedImage ? (
         <View style={styles.previewContainer}>
-          <Image source={{ uri: selectedImage }} style={styles.previewImage} />
+          <Image
+            source={{ uri: selectedImage.uri }}
+            style={styles.previewImage}
+          />
 
           <View style={styles.buttonContainer}>
             <TouchableOpacity
-              style={styles.changeButton}
+              style={[
+                styles.changeButton,
+                isUploading && styles.disabledButton,
+              ]}
               onPress={showImagePicker}
+              disabled={isUploading}
             >
               <Text style={styles.changeButtonText}>Change Image</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.clearButton} onPress={clearImage}>
+            <TouchableOpacity
+              style={[styles.clearButton, isUploading && styles.disabledButton]}
+              onPress={clearImage}
+              disabled={isUploading}
+            >
               <Text style={styles.clearButtonText}>Clear</Text>
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.uploadButton} onPress={handleUpload}>
-            <Text style={styles.uploadButtonText}>Upload Image</Text>
+          <TouchableOpacity
+            style={[styles.uploadButton, isUploading && styles.disabledButton]}
+            onPress={handleUpload}
+            disabled={isUploading}
+          >
+            {isUploading ? (
+              <View style={styles.uploadingContainer}>
+                <ActivityIndicator color="#fff" />
+                <Text style={styles.uploadButtonText}>Uploading...</Text>
+              </View>
+            ) : (
+              <Text style={styles.uploadButtonText}>Upload Image</Text>
+            )}
           </TouchableOpacity>
         </View>
       ) : (
@@ -258,6 +312,14 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  uploadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
 });
 

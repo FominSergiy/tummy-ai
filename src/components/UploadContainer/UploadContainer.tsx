@@ -1,18 +1,67 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { apiService } from '@/src/services';
+import React, { useState } from 'react';
+import { Alert, StyleSheet, View } from 'react-native';
 import { PictureUpload } from './components/PictureUpload';
 
+const ANALYZE_ROUTE = '/ingredients/analyze';
+
+export type handleDataType = {
+  type: string;
+  uri: string;
+  fileName: string;
+  mimeType: string;
+  timestamp: string;
+  source: string;
+};
+
+interface AnalyzeResponse {
+  success: boolean;
+  data: {
+    fileKey: string;
+    tempKey: string;
+    url: string;
+  };
+}
+
 const UploadContainer = () => {
-  const handleSave = (data: object) => {
-    console.log('Saved data:', data);
-    // Here you can handle the saved data - send to server, store locally, etc.
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleSave = async (data: handleDataType) => {
+    setIsUploading(true);
+
+    try {
+      const response = await apiService.uploadFile<AnalyzeResponse>(
+        ANALYZE_ROUTE,
+        data.uri,
+        data.fileName,
+        data.mimeType,
+        false // Set to true if authentication is required
+      );
+
+      if (response.success) {
+        Alert.alert(
+          'Success',
+          `Image uploaded successfully!\nFile Key: ${response.data.fileKey}`,
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      Alert.alert(
+        'Upload Failed',
+        error instanceof Error ? error.message : 'Failed to upload image',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.contentContainer}>
         <View style={styles.uploadSection}>
-          <PictureUpload onSave={handleSave} />
+          <PictureUpload onSave={handleSave} isUploading={isUploading} />
         </View>
       </View>
     </View>
