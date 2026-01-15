@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const TOKEN_KEY = 'user_jwt_token';
+const TOKEN_KEY = process.env.EXPO_PUBLIC_TOKEN_KEY || ' ';
 
 export class TokenStorage {
   static async storeToken(token: string): Promise<void> {

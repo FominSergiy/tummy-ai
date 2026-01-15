@@ -69,7 +69,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const logout = useCallback(async () => {
-    await apiService.logout();
+    await TokenStorage.removeToken();
     setUser(null);
   }, []);
 
