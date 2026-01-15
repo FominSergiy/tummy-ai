@@ -1,12 +1,11 @@
 import { Redirect } from 'expo-router';
-import { useState } from 'react';
+import { useAuth } from '../providers';
 
 export default function Index() {
-  const [isAuthn, setIsAuth] = useState<boolean>(false);
+  const { isAuthenticated } = useAuth();
 
-  if (!isAuthn) {
-    return <Redirect href={'/login'} />;
+  if (isAuthenticated) {
+    return <Redirect href={'/(tabs)/home'} />;
   }
-
-  return <Redirect href={'/(tabs)/home'} />;
+  return <Redirect href={'/login'} />;
 }

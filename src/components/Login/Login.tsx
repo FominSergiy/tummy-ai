@@ -1,5 +1,6 @@
+import { useAuth } from '@/src/providers';
 import { Redirect } from 'expo-router';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -31,41 +32,24 @@ const isValidPassword = (password: string) => {
 };
 
 export function Login() {
-  const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [isSignup, setIsSignup] = useState<boolean>(false);
+  const { isAuthenticated, login } = useAuth();
 
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
 
   // Check if user is already authenticated on component mount
-  useEffect(() => {
-    const checkAuthentication = async () => {
-      try {
-        const isAuthenticated = await apiService.isAuthenticated();
-        if (isAuthenticated) {
-          setLoggedIn(true);
-        }
-      } catch (error) {
-        console.error('Error checking authentication:', error);
-      } finally {
-        setCheckingAuth(false);
-      }
-    };
-
-    checkAuthentication();
-  }, []);
 
   // Show loading while checking authentication
-  if (checkingAuth) {
+  if (loading) {
     return null; // or a loading spinner component
   }
 
   // if all well we do redirect
-  if (loggedIn) {
+  if (isAuthenticated) {
     return <Redirect href="/(tabs)/home" />;
   }
 
@@ -90,10 +74,7 @@ export function Login() {
         setPassword('');
         setConfirmPassword('');
       } else {
-        const response = await apiService.login({ email, password });
-        if (response.success) {
-          setLoggedIn(true);
-        }
+        await login({ email, password });
       }
     } catch (error) {
       const errorMessage =
