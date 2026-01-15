@@ -177,6 +177,84 @@ class ApiService {
 
     return response.json();
   };
+
+  // ============ Ingredients API Methods ============
+
+  /**
+   * Commit an analysis (save permanently)
+   */
+  commitAnalysis = async (
+    analysisId: number,
+    overrides?: { productName?: string; brandName?: string }
+  ): Promise<{ success: boolean; analysisId: number; message: string }> => {
+    const response = await this.fetchApi('/ingredients/commit', {
+      method: 'POST',
+      data: { analysisId, overrides },
+      requiresAuth: true,
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        await TokenStorage.removeToken();
+      }
+      const error = await this.parseErrorResponse(response);
+      throw new Error(error);
+    }
+
+    return response.json();
+  };
+
+  /**
+   * Decline an analysis (reject and cleanup)
+   */
+  declineAnalysis = async (
+    analysisId: number,
+    reason?: string
+  ): Promise<{ success: boolean; analysisId: number; message: string }> => {
+    const response = await this.fetchApi('/ingredients/decline', {
+      method: 'POST',
+      data: { analysisId, reason },
+      requiresAuth: true,
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        await TokenStorage.removeToken();
+      }
+      const error = await this.parseErrorResponse(response);
+      throw new Error(error);
+    }
+
+    return response.json();
+  };
+
+  /**
+   * Re-analyze with user-provided edits/hints
+   */
+  reanalyzeWithEdits = async <T>(
+    analysisId: number,
+    userEdits: {
+      productName?: string;
+      brandName?: string;
+      additionalContext?: string;
+    }
+  ): Promise<T> => {
+    const response = await this.fetchApi('/ingredients/reanalyze', {
+      method: 'POST',
+      data: { analysisId, userEdits },
+      requiresAuth: true,
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        await TokenStorage.removeToken();
+      }
+      const error = await this.parseErrorResponse(response);
+      throw new Error(error);
+    }
+
+    return response.json();
+  };
 }
 
 export const apiService = new ApiService();
