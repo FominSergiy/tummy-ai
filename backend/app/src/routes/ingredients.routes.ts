@@ -4,6 +4,7 @@ import { prisma } from '../../../prisma/client.js';
 import { AnalysisStatus } from '../../../prisma/generated/prisma/';
 import { authenticate } from '../middleware/index.js';
 import { imageCompressionService } from '../services/image-compression.service.js';
+import { NonFoodImageError } from '../services/llm/llm.interface.js';
 import { llmService } from '../services/llm/llm.service.js';
 import { s3Service } from '../services/s3.service.js';
 
@@ -116,6 +117,11 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
           imageMimeType: 'image/jpeg',
         });
 
+        // Step 5.5: Validate that image contains food
+        if (!llmResponse.isFood) {
+          throw new NonFoodImageError(llmResponse.detectedContent);
+        }
+
         // Step 6: Update analysis with LLM results
         // Extract key nutrition fields for filtering
         const totalCalories = llmResponse.nutritionFacts?.calories || null;
@@ -174,6 +180,15 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
             .catch((err) =>
               fastify.log.error('Failed to update error status:', err)
             );
+        }
+
+        // Handle non-food image error with specific response
+        if (error instanceof NonFoodImageError) {
+          return reply.code(400).send({
+            error: 'Not a food image',
+            message: 'The uploaded image does not appear to contain food.',
+            detectedContent: error.detectedContent,
+          });
         }
 
         return reply.code(500).send({
@@ -264,6 +279,11 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
           },
         });
 
+        // Validate that image contains food
+        if (!llmResponse.isFood) {
+          throw new NonFoodImageError(llmResponse.detectedContent);
+        }
+
         // Update analysis with new LLM results
         const totalCalories = llmResponse.nutritionFacts?.calories || null;
         const totalSugar = llmResponse.nutritionFacts?.totalSugars || null;
@@ -304,6 +324,16 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
         });
       } catch (error) {
         fastify.log.error(error);
+
+        // Handle non-food image error with specific response
+        if (error instanceof NonFoodImageError) {
+          return reply.code(400).send({
+            error: 'Not a food image',
+            message: 'The uploaded image does not appear to contain food.',
+            detectedContent: error.detectedContent,
+          });
+        }
+
         return reply.code(500).send({
           error: 'Reanalysis failed',
           message: error instanceof Error ? error.message : 'Unknown error',

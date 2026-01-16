@@ -32,7 +32,20 @@ type Alergen = {
   severity?: string;
   notes?: string;
 };
+
+export class NonFoodImageError extends Error {
+  public detectedContent?: string;
+
+  constructor(detectedContent?: string) {
+    super('Image does not contain food');
+    this.name = 'NonFoodImageError';
+    this.detectedContent = detectedContent;
+  }
+}
+
 export interface LLMAnalysisResponse {
+  isFood: boolean;
+  detectedContent?: string; // Description of non-food content when isFood is false
   mealTitle?: string;
   mealDescription?: string;
   ingredients: Ingerient[];

@@ -43,6 +43,8 @@ export interface NutritionFacts {
 }
 
 export interface AnalysisData {
+  isFood: boolean;
+  detectedContent?: string; // Description of non-food content when isFood is false
   mealTitle?: string;
   mealDescription?: string;
   ingredients: Ingredient[];
@@ -86,6 +88,13 @@ export interface ReanalyzeResponse {
   processingTimeMs: number;
   analysis: AnalysisData;
   message: string;
+}
+
+// Error response for non-food images
+export interface NonFoodErrorResponse {
+  error: 'Not a food image';
+  message: string;
+  detectedContent?: string;
 }
 
 // Component State
