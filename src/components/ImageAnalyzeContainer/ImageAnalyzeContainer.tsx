@@ -78,8 +78,8 @@ const ImageAnalyzeContainer = () => {
       const response = await apiService.reanalyzeWithEdits<ReanalyzeResponse>(
         analysisId,
         {
-          productName: analysisData.productName,
-          brandName: analysisData.brandName,
+          mealTitle: analysisData.mealTitle,
+          mealDescription: analysisData.mealDescription,
         }
       );
 
@@ -104,8 +104,8 @@ const ImageAnalyzeContainer = () => {
 
     try {
       await apiService.commitAnalysis(analysisId, {
-        productName: analysisData.productName,
-        brandName: analysisData.brandName,
+        mealTitle: analysisData.mealTitle,
+        mealDescription: analysisData.mealDescription,
       });
 
       Alert.alert('Success', 'Analysis saved successfully!');

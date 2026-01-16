@@ -29,14 +29,53 @@ export const AnalysisForm = ({
 }: AnalysisFormProps) => {
   const [showNutrition, setShowNutrition] = useState(false);
 
-  const handleProductNameChange = useCallback(
-    (text: string) => onChange('productName', text),
+  const handleMealTitleChange = useCallback(
+    (text: string) => onChange('mealTitle', text),
     [onChange]
   );
 
-  const handleBrandNameChange = useCallback(
-    (text: string) => onChange('brandName', text),
+  const handleMealDescriptionChange = useCallback(
+    (text: string) => onChange('mealDescription', text),
     [onChange]
+  );
+
+  const handleNutritionFactChange = useCallback(
+    (key: keyof NutritionFacts, value: string) => {
+      const nutrition = analysis.nutritionFacts || {};
+      const numericKeys = [
+        'calories',
+        'totalFat',
+        'saturatedFat',
+        'transFat',
+        'cholesterol',
+        'sodium',
+        'totalCarbs',
+        'dietaryFiber',
+        'totalSugars',
+        'addedSugars',
+        'protein',
+        'vitaminD',
+        'calcium',
+        'iron',
+        'potassium',
+      ];
+
+      let parsedValue: string | number | undefined;
+      if (numericKeys.includes(key)) {
+        parsedValue = value === '' ? undefined : parseFloat(value);
+        if (parsedValue !== undefined && isNaN(parsedValue)) {
+          return; // Don't update if invalid number
+        }
+      } else {
+        parsedValue = value;
+      }
+
+      onChange('nutritionFacts', {
+        ...nutrition,
+        [key]: parsedValue,
+      });
+    },
+    [analysis.nutritionFacts, onChange]
   );
 
   const handleIngredientChange = useCallback(
@@ -105,8 +144,7 @@ export const AnalysisForm = ({
   );
 
   const renderNutritionFacts = () => {
-    const nutrition = analysis.nutritionFacts;
-    if (!nutrition) return null;
+    const nutrition = analysis.nutritionFacts || {};
 
     const nutritionFields: {
       key: keyof NutritionFacts;
@@ -139,11 +177,24 @@ export const AnalysisForm = ({
             {nutritionFields.map(({ key, label, unit }) => (
               <View key={key} style={styles.nutritionRow}>
                 <Text style={styles.nutritionLabel}>{label}</Text>
-                <Text style={styles.nutritionValue}>
-                  {nutrition[key] !== undefined
-                    ? `${nutrition[key]}${unit || ''}`
-                    : '-'}
-                </Text>
+                <View style={styles.nutritionInputWrapper}>
+                  <TextInput
+                    style={[
+                      styles.nutritionInput,
+                      isDisabled && styles.disabledInput,
+                    ]}
+                    value={
+                      nutrition[key] !== undefined ? String(nutrition[key]) : ''
+                    }
+                    onChangeText={(text) =>
+                      handleNutritionFactChange(key, text)
+                    }
+                    editable={!isDisabled}
+                    placeholder="-"
+                    keyboardType={key === 'servingSize' ? 'default' : 'numeric'}
+                  />
+                  {unit && <Text style={styles.unitText}>{unit}</Text>}
+                </View>
               </View>
             ))}
           </View>
@@ -216,27 +267,34 @@ export const AnalysisForm = ({
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Product Name */}
+      {/* Meal Title */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Product Name</Text>
+        <Text style={styles.label}>Meal Title</Text>
         <TextInput
           style={[styles.input, isDisabled && styles.disabledInput]}
-          value={analysis.productName || ''}
-          onChangeText={handleProductNameChange}
+          value={analysis.mealTitle || ''}
+          onChangeText={handleMealTitleChange}
           editable={!isDisabled}
-          placeholder="Product name"
+          placeholder="e.g., Tuna Sandwich"
         />
       </View>
 
-      {/* Brand Name */}
+      {/* Meal Description */}
       <View style={styles.fieldContainer}>
-        <Text style={styles.label}>Brand Name</Text>
+        <Text style={styles.label}>Meal Description</Text>
         <TextInput
-          style={[styles.input, isDisabled && styles.disabledInput]}
-          value={analysis.brandName || ''}
-          onChangeText={handleBrandNameChange}
+          style={[
+            styles.input,
+            styles.multilineInput,
+            isDisabled && styles.disabledInput,
+          ]}
+          value={analysis.mealDescription || ''}
+          onChangeText={handleMealDescriptionChange}
           editable={!isDisabled}
-          placeholder="Brand name"
+          placeholder="Describe the meal..."
+          multiline
+          numberOfLines={3}
+          textAlignVertical="top"
         />
       </View>
 
@@ -281,6 +339,10 @@ const styles = StyleSheet.create({
   disabledInput: {
     backgroundColor: '#e9ecef',
     color: '#6c757d',
+  },
+  multilineInput: {
+    minHeight: 80,
+    paddingTop: 12,
   },
   section: {
     marginBottom: 20,
@@ -368,11 +430,30 @@ const styles = StyleSheet.create({
   nutritionLabel: {
     fontSize: 14,
     color: '#666',
+    flex: 1,
   },
-  nutritionValue: {
+  nutritionInputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  nutritionInput: {
+    backgroundColor: '#f8f9fa',
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     fontSize: 14,
     fontWeight: '500',
     color: '#333',
+    minWidth: 60,
+    textAlign: 'right',
+  },
+  unitText: {
+    fontSize: 14,
+    color: '#666',
+    minWidth: 20,
   },
   pillContainer: {
     flexDirection: 'row',

@@ -4,6 +4,7 @@ import { prisma } from '../../../prisma/client.js';
 import { AnalysisStatus } from '../../../prisma/generated/prisma/';
 import { authenticate } from '../middleware/index.js';
 import { imageCompressionService } from '../services/image-compression.service.js';
+import { NonFoodImageError } from '../services/llm/llm.interface.js';
 import { llmService } from '../services/llm/llm.service.js';
 import { s3Service } from '../services/s3.service.js';
 
@@ -12,8 +13,8 @@ const ROOT_ROUTE = 'ingredients';
 interface CommitBody {
   analysisId: number;
   overrides?: {
-    productName?: string;
-    brandName?: string;
+    mealTitle?: string;
+    mealDescription?: string;
   };
 }
 
@@ -25,8 +26,8 @@ interface DeclineBody {
 interface ReanalyzeBody {
   analysisId: number;
   userEdits: {
-    productName?: string;
-    brandName?: string;
+    mealTitle?: string;
+    mealDescription?: string;
     additionalContext?: string;
   };
 }
@@ -111,10 +112,15 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
         );
 
         // Step 5: Send to LLM for analysis
-        const llmResponse = await llmService.analyze({
+        const llmResponse = await llmService.analyzeImage({
           imageBuffer: compressionResult.buffer,
           imageMimeType: 'image/jpeg',
         });
+
+        // Step 5.5: Validate that image contains food
+        if (!llmResponse.isFood) {
+          throw new NonFoodImageError(llmResponse.detectedContent);
+        }
 
         // Step 6: Update analysis with LLM results
         // Extract key nutrition fields for filtering
@@ -127,8 +133,8 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
           where: { id: analysisId },
           data: {
             analysisData: llmResponse as any, // Store full response as JSON
-            productName: llmResponse.productName,
-            brandName: llmResponse.brandName,
+            mealTitle: llmResponse.mealTitle,
+            mealDescription: llmResponse.mealDescription,
             totalCalories,
             totalSugar,
             totalCarbs,
@@ -151,8 +157,8 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
             ratio: compressionResult.compressionRatio,
           },
           analysis: {
-            productName: llmResponse.productName,
-            brandName: llmResponse.brandName,
+            mealTitle: llmResponse.mealTitle,
+            mealDescription: llmResponse.mealDescription,
             ingredients: llmResponse.ingredients,
             nutritionFacts: llmResponse.nutritionFacts,
             allergens: llmResponse.allergens,
@@ -174,6 +180,15 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
             .catch((err) =>
               fastify.log.error('Failed to update error status:', err)
             );
+        }
+
+        // Handle non-food image error with specific response
+        if (error instanceof NonFoodImageError) {
+          return reply.code(400).send({
+            error: 'Not a food image',
+            message: 'The uploaded image does not appear to contain food.',
+            detectedContent: error.detectedContent,
+          });
         }
 
         return reply.code(500).send({
@@ -254,15 +269,20 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
         });
 
         // Call LLM with hints
-        const llmResponse = await llmService.analyze({
+        const llmResponse = await llmService.analyzeImage({
           imageBuffer,
           imageMimeType: imageData.contentType,
           hints: {
-            productName: userEdits.productName,
-            brandName: userEdits.brandName,
+            mealTitle: userEdits.mealTitle,
+            mealDescription: userEdits.mealDescription,
             additionalContext: userEdits.additionalContext,
           },
         });
+
+        // Validate that image contains food
+        if (!llmResponse.isFood) {
+          throw new NonFoodImageError(llmResponse.detectedContent);
+        }
 
         // Update analysis with new LLM results
         const totalCalories = llmResponse.nutritionFacts?.calories || null;
@@ -274,8 +294,8 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
           where: { id: analysisId },
           data: {
             analysisData: llmResponse as object,
-            productName: llmResponse.productName,
-            brandName: llmResponse.brandName,
+            mealTitle: llmResponse.mealTitle,
+            mealDescription: llmResponse.mealDescription,
             totalCalories,
             totalSugar,
             totalCarbs,
@@ -292,8 +312,8 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
           provider: llmService.getProviderName(),
           processingTimeMs: processingTime,
           analysis: {
-            productName: llmResponse.productName,
-            brandName: llmResponse.brandName,
+            mealTitle: llmResponse.mealTitle,
+            mealDescription: llmResponse.mealDescription,
             ingredients: llmResponse.ingredients,
             nutritionFacts: llmResponse.nutritionFacts,
             allergens: llmResponse.allergens,
@@ -304,6 +324,16 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
         });
       } catch (error) {
         fastify.log.error(error);
+
+        // Handle non-food image error with specific response
+        if (error instanceof NonFoodImageError) {
+          return reply.code(400).send({
+            error: 'Not a food image',
+            message: 'The uploaded image does not appear to contain food.',
+            detectedContent: error.detectedContent,
+          });
+        }
+
         return reply.code(500).send({
           error: 'Reanalysis failed',
           message: error instanceof Error ? error.message : 'Unknown error',
@@ -348,8 +378,9 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
           data: {
             status: AnalysisStatus.COMMITTED,
             committedAt: new Date(),
-            productName: overrides?.productName || analysis.productName,
-            brandName: overrides?.brandName || analysis.brandName,
+            mealTitle: overrides?.mealTitle || analysis.mealTitle,
+            mealDescription:
+              overrides?.mealDescription || analysis.mealDescription,
           },
         });
 

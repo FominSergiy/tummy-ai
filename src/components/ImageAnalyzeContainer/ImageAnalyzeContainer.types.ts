@@ -43,8 +43,10 @@ export interface NutritionFacts {
 }
 
 export interface AnalysisData {
-  productName?: string;
-  brandName?: string;
+  isFood: boolean;
+  detectedContent?: string; // Description of non-food content when isFood is false
+  mealTitle?: string;
+  mealDescription?: string;
   ingredients: Ingredient[];
   nutritionFacts?: NutritionFacts;
   allergens: Allergen[];
@@ -88,6 +90,13 @@ export interface ReanalyzeResponse {
   message: string;
 }
 
+// Error response for non-food images
+export interface NonFoodErrorResponse {
+  error: 'Not a food image';
+  message: string;
+  detectedContent?: string;
+}
+
 // Component State
 export type UploadState =
   | 'initial' // No image selected
@@ -106,7 +115,7 @@ export interface ImageData {
 
 // User edits for reanalysis
 export interface UserEdits {
-  productName?: string;
-  brandName?: string;
+  mealTitle?: string;
+  mealDescription?: string;
   additionalContext?: string;
 }

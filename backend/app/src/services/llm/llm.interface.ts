@@ -1,6 +1,6 @@
 export interface UserHints {
-  productName?: string;
-  brandName?: string;
+  mealTitle?: string;
+  mealDescription?: string;
   ingredients?: { name: string; order: number }[];
   additionalContext?: string;
 }
@@ -32,9 +32,22 @@ type Alergen = {
   severity?: string;
   notes?: string;
 };
+
+export class NonFoodImageError extends Error {
+  public detectedContent?: string;
+
+  constructor(detectedContent?: string) {
+    super('Image does not contain food');
+    this.name = 'NonFoodImageError';
+    this.detectedContent = detectedContent;
+  }
+}
+
 export interface LLMAnalysisResponse {
-  productName?: string;
-  brandName?: string;
+  isFood: boolean;
+  detectedContent?: string; // Description of non-food content when isFood is false
+  mealTitle?: string;
+  mealDescription?: string;
   ingredients: Ingerient[];
   nutritionFacts?: {
     servingSize?: string;
@@ -63,7 +76,7 @@ export interface LLMAnalysisResponse {
 }
 
 export interface ILLMProvider {
-  analyze(request: LLMAnalysisRequest): Promise<LLMAnalysisResponse>;
+  analyzeImage(request: LLMAnalysisRequest): Promise<LLMAnalysisResponse>;
   getName(): string;
   isAvailable(): boolean;
 }
