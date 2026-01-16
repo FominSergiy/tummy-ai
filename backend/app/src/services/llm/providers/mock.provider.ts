@@ -1,8 +1,16 @@
+import { readFile } from 'fs/promises';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import {
   ILLMProvider,
   LLMAnalysisRequest,
   LLMAnalysisResponse,
 } from '../llm.interface.js';
+
+// Get the directory of the current file (needed for ES modules)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const MOCK_FILE_PATH = join(__dirname, '../mocks/mockResponses.json');
 
 export class MockLLMProvider implements ILLMProvider {
   getName(): string {
@@ -13,6 +21,15 @@ export class MockLLMProvider implements ILLMProvider {
     return true;
   }
 
+  private async getMockLLMResps(): Promise<string> {
+    try {
+      const data = await readFile(MOCK_FILE_PATH, 'utf8');
+      return data;
+    } catch (err) {
+      throw new Error(`Failed to read mock responses file: ${err}`);
+    }
+  }
+
   async analyze(request: LLMAnalysisRequest): Promise<LLMAnalysisResponse> {
     // Simulate processing delay (500ms-2s)
     await new Promise((resolve) =>
@@ -20,166 +37,16 @@ export class MockLLMProvider implements ILLMProvider {
     );
 
     // Generate realistic mock data based on daily meals
-    const mockMeals: LLMAnalysisResponse[] = [
-      {
-        mealTitle: 'Tuna Sandwich',
-        mealDescription:
-          'Homemade tuna sandwich on whole wheat bread with mayo and lettuce',
-        ingredients: [
-          { name: 'Whole wheat bread', order: 1, quantity: '2 slices' },
-          { name: 'Canned tuna', order: 2, quantity: '3 oz' },
-          { name: 'Mayonnaise', order: 3, quantity: '1 tbsp' },
-          { name: 'Lettuce', order: 4, quantity: '2 leaves' },
-          { name: 'Tomato', order: 5, quantity: '2 slices' },
-        ],
-        nutritionFacts: {
-          servingSize: '1 sandwich',
-          servingsPerContainer: '1',
-          calories: 350,
-          totalFat: 14,
-          saturatedFat: 2,
-          transFat: 0,
-          cholesterol: 35,
-          sodium: 580,
-          totalCarbs: 32,
-          dietaryFiber: 4,
-          totalSugars: 4,
-          addedSugars: 1,
-          protein: 24,
-          vitaminD: 1,
-          calcium: 80,
-          iron: 2.5,
-          potassium: 320,
-        },
-        allergens: [
-          { name: 'Wheat', severity: 'Contains' },
-          { name: 'Fish', severity: 'Contains' },
-          { name: 'Eggs', severity: 'Contains', notes: 'from mayonnaise' },
-        ],
-        healthFlags: [
-          { name: 'High Protein', type: 'POSITIVE', confidence: 0.95 },
-          { name: 'Whole Grains', type: 'POSITIVE', confidence: 0.9 },
-          { name: 'Moderate Sodium', type: 'NEUTRAL', confidence: 0.85 },
-        ],
-      },
-      {
-        mealTitle: 'Ramen with Egg',
-        mealDescription:
-          'Instant ramen noodles with soft-boiled egg and green onions',
-        ingredients: [
-          { name: 'Ramen noodles', order: 1, quantity: '1 package' },
-          { name: 'Seasoning packet', order: 2, quantity: '1 packet' },
-          { name: 'Egg', order: 3, quantity: '1 large', isHighlighted: true },
-          { name: 'Green onions', order: 4, quantity: '2 tbsp chopped' },
-        ],
-        nutritionFacts: {
-          servingSize: '1 bowl',
-          servingsPerContainer: '1',
-          calories: 450,
-          totalFat: 18,
-          saturatedFat: 8,
-          transFat: 0,
-          cholesterol: 210,
-          sodium: 1820,
-          totalCarbs: 56,
-          dietaryFiber: 2,
-          totalSugars: 2,
-          addedSugars: 0,
-          protein: 14,
-          vitaminD: 1,
-          calcium: 40,
-          iron: 3.5,
-          potassium: 180,
-        },
-        allergens: [
-          { name: 'Wheat', severity: 'Contains' },
-          { name: 'Eggs', severity: 'Contains' },
-          { name: 'Soy', severity: 'Contains' },
-        ],
-        healthFlags: [
-          { name: 'High Sodium', type: 'NEGATIVE', confidence: 0.98 },
-          { name: 'Processed Food', type: 'NEGATIVE', confidence: 0.9 },
-          { name: 'Quick Meal', type: 'NEUTRAL', confidence: 0.85 },
-        ],
-      },
-      {
-        mealTitle: 'Cup of Milk',
-        mealDescription: '8oz glass of whole milk',
-        ingredients: [
-          { name: 'Whole milk', order: 1, quantity: '8 oz (240ml)' },
-        ],
-        nutritionFacts: {
-          servingSize: '8 oz (240ml)',
-          servingsPerContainer: '1',
-          calories: 150,
-          totalFat: 8,
-          saturatedFat: 5,
-          transFat: 0,
-          cholesterol: 35,
-          sodium: 125,
-          totalCarbs: 12,
-          dietaryFiber: 0,
-          totalSugars: 12,
-          addedSugars: 0,
-          protein: 8,
-          vitaminD: 2.5,
-          calcium: 300,
-          iron: 0,
-          potassium: 380,
-        },
-        allergens: [{ name: 'Milk', severity: 'Contains' }],
-        healthFlags: [
-          { name: 'High Calcium', type: 'POSITIVE', confidence: 0.98 },
-          { name: 'Good Protein Source', type: 'POSITIVE', confidence: 0.92 },
-          { name: 'High Saturated Fat', type: 'NEGATIVE', confidence: 0.85 },
-        ],
-      },
-      {
-        mealTitle: 'Chicken Salad',
-        mealDescription:
-          'Mixed greens salad with grilled chicken breast and vinaigrette',
-        ingredients: [
-          { name: 'Grilled chicken breast', order: 1, quantity: '4 oz' },
-          { name: 'Mixed greens', order: 2, quantity: '2 cups' },
-          { name: 'Cherry tomatoes', order: 3, quantity: '6 pieces' },
-          { name: 'Cucumber', order: 4, quantity: '1/2 cup sliced' },
-          { name: 'Olive oil dressing', order: 5, quantity: '2 tbsp' },
-        ],
-        nutritionFacts: {
-          servingSize: '1 salad',
-          servingsPerContainer: '1',
-          calories: 320,
-          totalFat: 16,
-          saturatedFat: 3,
-          transFat: 0,
-          cholesterol: 85,
-          sodium: 420,
-          totalCarbs: 12,
-          dietaryFiber: 4,
-          totalSugars: 6,
-          addedSugars: 0,
-          protein: 32,
-          vitaminD: 0,
-          calcium: 60,
-          iron: 2,
-          potassium: 680,
-        },
-        allergens: [{ name: 'Tree Nuts', severity: 'May Contain' }],
-        healthFlags: [
-          { name: 'High Protein', type: 'POSITIVE', confidence: 0.98 },
-          { name: 'Low Carb', type: 'POSITIVE', confidence: 0.95 },
-          { name: 'Fresh Vegetables', type: 'POSITIVE', confidence: 0.92 },
-          { name: 'Healthy Fats', type: 'POSITIVE', confidence: 0.88 },
-        ],
-      },
-    ];
+    const mockResponses = await this.getMockLLMResps();
+    const mockMeals: LLMAnalysisResponse[] = JSON.parse(mockResponses);
 
     // Return random mock meal or first one
     const selected = mockMeals[Math.floor(Math.random() * mockMeals.length)];
 
     // If hints provided, use them to override mock data
-    const result = {
+    const result: LLMAnalysisResponse = {
       ...selected,
+      isFood: true, // Mock provider always returns food responses
       mealTitle: request.hints?.mealTitle || selected.mealTitle,
       mealDescription:
         request.hints?.mealDescription || selected.mealDescription,
