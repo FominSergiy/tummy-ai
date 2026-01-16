@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface SignButtonProps {
   isSignUp: boolean;
-  lockSignUp: boolean;
+  disable: boolean;
   loading: boolean;
   handleSubmit: () => void;
   toggleMode: () => void;
@@ -11,13 +11,13 @@ interface SignButtonProps {
 
 export const SignButton = ({
   isSignUp,
-  lockSignUp,
+  disable,
   loading,
   handleSubmit,
   toggleMode,
 }: SignButtonProps) => {
   // lock sign up button ADDITIONALLY if field validations are broken
-  const lockButton = isSignUp ? loading || lockSignUp : loading;
+  const lockButton = isSignUp ? loading || disable : loading;
 
   return (
     <View>

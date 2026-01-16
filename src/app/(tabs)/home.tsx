@@ -1,11 +1,11 @@
-import { UploadContainer } from '@/src/components';
+import { ImageAnalyzeContainer } from '@/src/components';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 export default function HomeTab() {
   return (
     <View style={styles.container}>
-      <UploadContainer />
+      <ImageAnalyzeContainer />
     </View>
   );
 }

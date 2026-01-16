@@ -33,3 +33,18 @@
 - Start MinIO: `yarn services:start:daemon` (starts both database and MinIO)
 - Environment variables configured in `.env` file
 - Use AWS SDK v3 with S3_FORCE_PATH_STYLE=true for compatibility
+
+## Code Style
+
+- **Use arrow functions** instead of function declarations
+  - Prefer: `const myFunction = () => { ... }`
+  - Avoid: `function myFunction() { ... }`
+
+## Frontend Development (src/)
+
+- **Use memoization** to prevent unnecessary re-renders:
+  - `useCallback` for functions passed to children or used in dependency arrays
+  - `useMemo` for objects, arrays, and expensive calculations
+  - `useMemo` for React Context provider values
+- **Context providers** must wrap their value in `useMemo` and callbacks in `useCallback`
+- **Functions in useEffect dependency arrays** must be wrapped in `useCallback`

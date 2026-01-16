@@ -1,17 +1,30 @@
 datasource db {
     provider = "postgresql"
-    url      = env("DATABASE_URL")
+    schemas  = ["app"]
 }
 
 generator client {
     provider = "prisma-client-js"
-    output   = "./generated/prisma"
+    output   = "../generated/prisma"
 }
 
 enum FileType {
     IMAGE
     TEXT
     AUDIO
+
+    @@schema("app")
+}
+
+enum AnalysisStatus {
+    PENDING // Image uploaded, not yet analyzed
+    ANALYZING // LLM processing in progress
+    COMPLETED // Analysis done, awaiting user validation
+    COMMITTED // User accepted, saved to DB
+    DECLINED // User rejected
+    ERROR // Analysis failed
+
+    @@schema("app")
 }
 
 model FileUpload {
@@ -22,17 +35,47 @@ model FileUpload {
     user     User?    @relation(fields: [userId], references: [id])
 
     @@map("file_uploads")
+    @@schema("app")
+}
+
+model IngredientAnalysis {
+    id                Int            @id @default(autoincrement())
+    userId            Int            @map("user_id")
+    fileKey           String         @map("file_key")
+    compressedFileKey String?        @map("compressed_file_key")
+    status            AnalysisStatus @default(PENDING)
+
+    // Full LLM response as JSON - source of truth for LLM queries
+    // Contains: productName, brandName, ingredients[], nutritionFacts{}, allergens[], healthFlags[]
+    analysisData Json? @map("analysis_data")
+
+    // Extracted searchable fields (for pre-filtering before sending to LLM)
+    productName   String?  @map("product_name")
+    brandName     String?  @map("brand_name")
+    totalCalories Decimal? @map("total_calories") @db.Decimal(10, 2)
+    totalSugar    Decimal? @map("total_sugar") @db.Decimal(10, 2)
+    totalCarbs    Decimal? @map("total_carbs") @db.Decimal(10, 2)
+    totalProtein  Decimal? @map("total_protein") @db.Decimal(10, 2)
+
+    createdAt   DateTime  @default(now()) @map("created_at")
+    analyzedAt  DateTime? @map("analyzed_at")
+    committedAt DateTime? @map("committed_at")
+
+    user User @relation(fields: [userId], references: [id])
+
+    @@index([userId, analyzedAt])
+    @@index([userId, status])
+    @@map("ingredient_analyses")
+    @@schema("app")
 }
 
 model User {
-    id          Int          @id @default(autoincrement())
-    email       String       @unique
-    password    String
-    fileUploads FileUpload[]
+    id                 Int                  @id @default(autoincrement())
+    email              String               @unique
+    password           String
+    fileUploads        FileUpload[]
+    ingredientAnalyses IngredientAnalysis[]
 
     @@map("users")
+    @@schema("app")
 }
-
-// TODO: add table to store LLM responses
-
-// TODO: add table to store LLM-processed ingridients list

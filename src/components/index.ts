@@ -1,3 +1,3 @@
-export * from './Login';
+export * from './ImageAnalyzeContainer';
+export * from './LoginContainer';
 export * from './Logo';
-export * from './UploadContainer';
