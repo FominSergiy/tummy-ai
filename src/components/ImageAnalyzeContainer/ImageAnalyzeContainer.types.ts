@@ -43,8 +43,8 @@ export interface NutritionFacts {
 }
 
 export interface AnalysisData {
-  productName?: string;
-  brandName?: string;
+  mealTitle?: string;
+  mealDescription?: string;
   ingredients: Ingredient[];
   nutritionFacts?: NutritionFacts;
   allergens: Allergen[];
@@ -106,7 +106,7 @@ export interface ImageData {
 
 // User edits for reanalysis
 export interface UserEdits {
-  productName?: string;
-  brandName?: string;
+  mealTitle?: string;
+  mealDescription?: string;
   additionalContext?: string;
 }

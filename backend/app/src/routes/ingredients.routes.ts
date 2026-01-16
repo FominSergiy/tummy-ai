@@ -12,8 +12,8 @@ const ROOT_ROUTE = 'ingredients';
 interface CommitBody {
   analysisId: number;
   overrides?: {
-    productName?: string;
-    brandName?: string;
+    mealTitle?: string;
+    mealDescription?: string;
   };
 }
 
@@ -25,8 +25,8 @@ interface DeclineBody {
 interface ReanalyzeBody {
   analysisId: number;
   userEdits: {
-    productName?: string;
-    brandName?: string;
+    mealTitle?: string;
+    mealDescription?: string;
     additionalContext?: string;
   };
 }
@@ -127,8 +127,8 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
           where: { id: analysisId },
           data: {
             analysisData: llmResponse as any, // Store full response as JSON
-            productName: llmResponse.productName,
-            brandName: llmResponse.brandName,
+            mealTitle: llmResponse.mealTitle,
+            mealDescription: llmResponse.mealDescription,
             totalCalories,
             totalSugar,
             totalCarbs,
@@ -151,8 +151,8 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
             ratio: compressionResult.compressionRatio,
           },
           analysis: {
-            productName: llmResponse.productName,
-            brandName: llmResponse.brandName,
+            mealTitle: llmResponse.mealTitle,
+            mealDescription: llmResponse.mealDescription,
             ingredients: llmResponse.ingredients,
             nutritionFacts: llmResponse.nutritionFacts,
             allergens: llmResponse.allergens,
@@ -258,8 +258,8 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
           imageBuffer,
           imageMimeType: imageData.contentType,
           hints: {
-            productName: userEdits.productName,
-            brandName: userEdits.brandName,
+            mealTitle: userEdits.mealTitle,
+            mealDescription: userEdits.mealDescription,
             additionalContext: userEdits.additionalContext,
           },
         });
@@ -274,8 +274,8 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
           where: { id: analysisId },
           data: {
             analysisData: llmResponse as object,
-            productName: llmResponse.productName,
-            brandName: llmResponse.brandName,
+            mealTitle: llmResponse.mealTitle,
+            mealDescription: llmResponse.mealDescription,
             totalCalories,
             totalSugar,
             totalCarbs,
@@ -292,8 +292,8 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
           provider: llmService.getProviderName(),
           processingTimeMs: processingTime,
           analysis: {
-            productName: llmResponse.productName,
-            brandName: llmResponse.brandName,
+            mealTitle: llmResponse.mealTitle,
+            mealDescription: llmResponse.mealDescription,
             ingredients: llmResponse.ingredients,
             nutritionFacts: llmResponse.nutritionFacts,
             allergens: llmResponse.allergens,
@@ -348,8 +348,9 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
           data: {
             status: AnalysisStatus.COMMITTED,
             committedAt: new Date(),
-            productName: overrides?.productName || analysis.productName,
-            brandName: overrides?.brandName || analysis.brandName,
+            mealTitle: overrides?.mealTitle || analysis.mealTitle,
+            mealDescription:
+              overrides?.mealDescription || analysis.mealDescription,
           },
         });
 

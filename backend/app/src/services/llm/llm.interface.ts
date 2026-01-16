@@ -1,6 +1,6 @@
 export interface UserHints {
-  productName?: string;
-  brandName?: string;
+  mealTitle?: string;
+  mealDescription?: string;
   ingredients?: { name: string; order: number }[];
   additionalContext?: string;
 }
@@ -33,8 +33,8 @@ type Alergen = {
   notes?: string;
 };
 export interface LLMAnalysisResponse {
-  productName?: string;
-  brandName?: string;
+  mealTitle?: string;
+  mealDescription?: string;
   ingredients: Ingerient[];
   nutritionFacts?: {
     servingSize?: string;

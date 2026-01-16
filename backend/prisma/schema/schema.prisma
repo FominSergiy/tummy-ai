@@ -46,12 +46,12 @@ model IngredientAnalysis {
     status            AnalysisStatus @default(PENDING)
 
     // Full LLM response as JSON - source of truth for LLM queries
-    // Contains: productName, brandName, ingredients[], nutritionFacts{}, allergens[], healthFlags[]
+    // Contains: mealTitle, mealDescription, ingredients[], nutritionFacts{}, allergens[], healthFlags[]
     analysisData Json? @map("analysis_data")
 
     // Extracted searchable fields (for pre-filtering before sending to LLM)
-    productName   String?  @map("product_name")
-    brandName     String?  @map("brand_name")
+    mealTitle       String?  @map("meal_title")
+    mealDescription String?  @map("meal_description")
     totalCalories Decimal? @map("total_calories") @db.Decimal(10, 2)
     totalSugar    Decimal? @map("total_sugar") @db.Decimal(10, 2)
     totalCarbs    Decimal? @map("total_carbs") @db.Decimal(10, 2)

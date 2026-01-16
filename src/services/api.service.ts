@@ -185,7 +185,7 @@ class ApiService {
    */
   commitAnalysis = async (
     analysisId: number,
-    overrides?: { productName?: string; brandName?: string }
+    overrides?: { mealTitle?: string; mealDescription?: string }
   ): Promise<{ success: boolean; analysisId: number; message: string }> => {
     const response = await this.fetchApi('/ingredients/commit', {
       method: 'POST',
@@ -234,8 +234,8 @@ class ApiService {
   reanalyzeWithEdits = async <T>(
     analysisId: number,
     userEdits: {
-      productName?: string;
-      brandName?: string;
+      mealTitle?: string;
+      mealDescription?: string;
       additionalContext?: string;
     }
   ): Promise<T> => {
