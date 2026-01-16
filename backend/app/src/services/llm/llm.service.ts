@@ -3,7 +3,7 @@ import {
   LLMAnalysisRequest,
   LLMAnalysisResponse,
 } from './llm.interface.js';
-import { MockLLMProvider } from './providers/mock.provider.js';
+import { OpenRouterProvider } from './providers/openRouter.provider.js';
 // import { AnthropicLLMProvider } from './providers/anthropic.provider.js';
 
 class LLMService {
@@ -27,12 +27,15 @@ class LLMService {
     //   console.warn('Anthropic provider not available:', error);
     // }
 
-    console.log('Using Mock LLM provider');
-    return new MockLLMProvider();
+    // console.log('Using Mock LLM provider');
+    // return new MockLLMProvider();
+    return new OpenRouterProvider();
   }
 
-  async analyze(request: LLMAnalysisRequest): Promise<LLMAnalysisResponse> {
-    return this.provider.analyze(request);
+  async analyzeImage(
+    request: LLMAnalysisRequest
+  ): Promise<LLMAnalysisResponse> {
+    return this.provider.analyzeImage(request);
   }
 
   getProviderName(): string {

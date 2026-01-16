@@ -76,7 +76,7 @@ export interface LLMAnalysisResponse {
 }
 
 export interface ILLMProvider {
-  analyze(request: LLMAnalysisRequest): Promise<LLMAnalysisResponse>;
+  analyzeImage(request: LLMAnalysisRequest): Promise<LLMAnalysisResponse>;
   getName(): string;
   isAvailable(): boolean;
 }

@@ -30,7 +30,9 @@ export class MockLLMProvider implements ILLMProvider {
     }
   }
 
-  async analyze(request: LLMAnalysisRequest): Promise<LLMAnalysisResponse> {
+  async analyzeImage(
+    request: LLMAnalysisRequest
+  ): Promise<LLMAnalysisResponse> {
     // Simulate processing delay (500ms-2s)
     await new Promise((resolve) =>
       setTimeout(resolve, 500 + Math.random() * 1500)

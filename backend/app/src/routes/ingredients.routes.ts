@@ -112,7 +112,7 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
         );
 
         // Step 5: Send to LLM for analysis
-        const llmResponse = await llmService.analyze({
+        const llmResponse = await llmService.analyzeImage({
           imageBuffer: compressionResult.buffer,
           imageMimeType: 'image/jpeg',
         });
@@ -269,7 +269,7 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
         });
 
         // Call LLM with hints
-        const llmResponse = await llmService.analyze({
+        const llmResponse = await llmService.analyzeImage({
           imageBuffer,
           imageMimeType: imageData.contentType,
           hints: {
