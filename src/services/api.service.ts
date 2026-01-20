@@ -74,7 +74,8 @@ class ApiService {
   private fetchFormData = async (
     endpoint: string,
     file: FormDataFile,
-    requiresAuth: boolean = false
+    requiresAuth: boolean = false,
+    additionalFields?: Record<string, string>
   ): Promise<Response> => {
     const url = `${API_BASE_URL}${endpoint}`;
 
@@ -84,6 +85,15 @@ class ApiService {
       name: file.name,
       type: file.type,
     } as unknown as Blob);
+
+    // Append additional fields
+    if (additionalFields) {
+      Object.entries(additionalFields).forEach(([key, value]) => {
+        if (value) {
+          formData.append(key, value);
+        }
+      });
+    }
 
     const headers: Record<string, string> = {};
 
@@ -158,12 +168,15 @@ class ApiService {
     fileUri: string,
     fileName: string,
     mimeType: string = 'image/jpeg',
-    requiresAuth: boolean = false
+    requiresAuth: boolean = false,
+    userPrompt?: string
   ): Promise<T> => {
+    const additionalFields = userPrompt ? { prompt: userPrompt } : undefined;
     const response = await this.fetchFormData(
       endpoint,
       { uri: fileUri, name: fileName, type: mimeType },
-      requiresAuth
+      requiresAuth,
+      additionalFields
     );
 
     if (!response.ok) {

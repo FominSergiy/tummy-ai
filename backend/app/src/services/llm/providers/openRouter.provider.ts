@@ -84,11 +84,12 @@ export class OpenRouterProvider implements ILLMProvider {
       },
     ];
 
-    // Add text prompt if provided
+    // Add text prompt if provided (wrapped to identify as user context, not commands)
     if (prompt) {
+      const wrappedPrompt = `[User's description of the food: "${prompt}"]`;
       userContent.push({
         type: 'text',
-        text: prompt,
+        text: wrappedPrompt,
       });
     }
 

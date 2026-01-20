@@ -7,6 +7,7 @@ import { imageCompressionService } from '../services/image-compression.service.j
 import { NonFoodImageError } from '../services/llm/llm.interface.js';
 import { llmService } from '../services/llm/llm.service.js';
 import { s3Service } from '../services/s3.service.js';
+import { parseMultipartWithPrompt } from '../utils/route.utils.js';
 
 const ROOT_ROUTE = 'ingredients';
 
@@ -51,26 +52,28 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
       let analysisId: number | null = null;
 
       try {
-        // Step 1: Get file from request
-        const fileData = await request.file();
-        if (!fileData) {
+        // Step 1: Get file and prompt from multipart request
+        const { fileBuffer, fileMimetype, fileFilename, userPrompt } =
+          await parseMultipartWithPrompt(request.parts());
+
+        if (!fileBuffer || !fileMimetype || !fileFilename) {
           return reply.code(400).send({ error: 'No file provided' });
         }
 
         // Validate file type
-        if (!fileData.mimetype.startsWith('image/')) {
+        if (!fileMimetype.startsWith('image/')) {
           return reply.code(400).send({
             error: 'Invalid file type. Only images are accepted',
           });
         }
 
-        const originalBuffer = await fileData.toBuffer();
+        const originalBuffer = fileBuffer;
 
         // Step 2: Upload original to temp storage
         const uploadResult = await s3Service.uploadToTemp({
           buffer: originalBuffer,
-          mimetype: fileData.mimetype,
-          originalFilename: fileData.filename,
+          mimetype: fileMimetype,
+          originalFilename: fileFilename,
         });
 
         // Step 3: Create analysis record with PENDING status
@@ -93,7 +96,7 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
         const compressedUploadResult = await s3Service.uploadToTemp({
           buffer: compressionResult.buffer,
           mimetype: 'image/jpeg',
-          originalFilename: `compressed-${fileData.filename}`,
+          originalFilename: `compressed-${fileFilename}`,
         });
 
         // Update analysis with compressed file key
@@ -115,6 +118,7 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
         const llmResponse = await llmService.analyzeImage({
           imageBuffer: compressionResult.buffer,
           imageMimeType: 'image/jpeg',
+          prompt: userPrompt,
         });
 
         // Step 5.5: Validate that image contains food

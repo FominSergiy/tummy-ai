@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
   Image,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -13,12 +15,16 @@ import { ImageData } from '../ImageAnalyzeContainer.types';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const IMAGE_SIZE = Math.min(SCREEN_WIDTH * 0.8, 300);
 
+const MAX_PROMPT_LENGTH = 500;
+
 interface FilledImageContainerProps {
   selectedImage: ImageData;
   isUploading: boolean;
   showImagePicker: () => void;
   onImageClear: () => void;
   handleAnalyze: () => void;
+  userPrompt: string;
+  onPromptChange: (text: string) => void;
 }
 
 const FilledImageContainer = ({
@@ -27,7 +33,16 @@ const FilledImageContainer = ({
   showImagePicker,
   onImageClear,
   handleAnalyze,
+  userPrompt,
+  onPromptChange,
 }: FilledImageContainerProps) => {
+  const showPromptHelp = useCallback(() => {
+    Alert.alert(
+      'Help Identify This Meal',
+      'This optional field helps improve analysis accuracy. Describe the cuisine type, specific ingredients, or portion size.\n\nExamples:\n• "Thai green curry with tofu"\n• "Homemade sourdough bread"\n• "Small portion, about 200g"'
+    );
+  }, []);
+
   return (
     <View style={styles.container}>
       {/* Image Section - centered in remaining space */}
@@ -37,6 +52,34 @@ const FilledImageContainer = ({
           style={styles.image}
           resizeMode="cover"
         />
+      </View>
+
+      {/* Prompt Section */}
+      <View style={styles.promptSection}>
+        <View style={styles.promptLabelRow}>
+          <Text style={styles.promptLabel}>Help identify this meal</Text>
+          <TouchableOpacity
+            onPress={showPromptHelp}
+            style={styles.helpButton}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Text style={styles.helpIcon}>?</Text>
+          </TouchableOpacity>
+        </View>
+        <TextInput
+          style={styles.promptInput}
+          value={userPrompt}
+          onChangeText={onPromptChange}
+          placeholder="e.g., 'Thai green curry with tofu' or 'homemade sourdough'"
+          placeholderTextColor="#999"
+          multiline
+          numberOfLines={2}
+          maxLength={MAX_PROMPT_LENGTH}
+          editable={!isUploading}
+        />
+        <Text style={styles.charCount}>
+          {userPrompt.length}/{MAX_PROMPT_LENGTH}
+        </Text>
       </View>
 
       {/* Action Buttons - anchored at bottom */}
@@ -86,6 +129,54 @@ const styles = StyleSheet.create({
     width: IMAGE_SIZE,
     height: IMAGE_SIZE,
     borderRadius: 16,
+  },
+  promptSection: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e9ecef',
+  },
+  promptLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  promptLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#333',
+  },
+  helpButton: {
+    marginLeft: 8,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#e9ecef',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  helpIcon: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#666',
+  },
+  promptInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 14,
+    color: '#333',
+    backgroundColor: '#fafafa',
+    minHeight: 60,
+    textAlignVertical: 'top',
+  },
+  charCount: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'right',
+    marginTop: 4,
   },
   actionsContainer: {
     flexDirection: 'row',
