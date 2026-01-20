@@ -109,6 +109,13 @@ export const AnalysisForm = ({
     setShowNutrition((prev) => !prev);
   }, []);
 
+  const getConfidenceColor = useCallback((confidence: number): string => {
+    const percentage = confidence * 100;
+    if (percentage < 50) return '#FFCDD2'; // pastel red
+    if (percentage < 85) return '#FFF9C4'; // pastel yellow
+    return '#C8E6C9'; // pastel green
+  }, []);
+
   const renderIngredientsList = () => (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Ingredients</Text>
@@ -207,7 +214,12 @@ export const AnalysisForm = ({
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Confidence Score */}
       {analysis.confidence !== undefined && (
-        <View style={styles.confidenceContainer}>
+        <View
+          style={[
+            styles.confidenceContainer,
+            { backgroundColor: getConfidenceColor(analysis.confidence) },
+          ]}
+        >
           <Text style={styles.confidenceLabel}>
             Analysis Confidence: {Math.round(analysis.confidence * 100)}%
           </Text>
@@ -394,7 +406,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 8,
     padding: 12,
-    backgroundColor: '#f0f0f0',
     borderRadius: 8,
     alignItems: 'center',
   },
