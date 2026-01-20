@@ -125,8 +125,8 @@ export class OpenRouterProvider implements ILLMProvider {
         mealDescription: parsedResponse.mealDescription,
         ingredients: parsedResponse.ingredients || [],
         nutritionFacts: parsedResponse.nutritionFacts,
-        allergens: parsedResponse.allergens || [],
-        healthFlags: parsedResponse.healthFlags || [],
+        // allergens: parsedResponse.allergens || [],
+        // healthFlags: parsedResponse.healthFlags || [],
         confidence: parsedResponse.confidence,
         rawResponse: {
           provider: 'OpenRouter',

@@ -49,9 +49,9 @@ export interface AnalysisData {
   mealDescription?: string;
   ingredients: Ingredient[];
   nutritionFacts?: NutritionFacts;
-  allergens: Allergen[];
-  healthFlags: HealthFlag[];
-  confidence?: number;
+  // allergens: Allergen[];
+  // healthFlags: HealthFlag[];
+  confidence: number;
 }
 
 // API Response types

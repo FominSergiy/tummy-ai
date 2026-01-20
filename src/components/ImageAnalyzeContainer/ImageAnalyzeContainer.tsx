@@ -24,6 +24,7 @@ const ImageAnalyzeContainer = () => {
 
   const handleImageSelect = useCallback((image: ImageData) => {
     setSelectedImage(image);
+
     setUploadState('image_selected');
     // Clear previous analysis if any
     setAnalysisId(null);

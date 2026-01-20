@@ -203,70 +203,16 @@ export const AnalysisForm = ({
     );
   };
 
-  const renderAllergens = () => (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Allergens</Text>
-      <View style={styles.pillContainer}>
-        {analysis.allergens.length > 0 ? (
-          analysis.allergens.map((allergen, index) => (
-            <View
-              key={index}
-              style={[
-                styles.pill,
-                allergen.severity === 'Contains'
-                  ? styles.pillDanger
-                  : styles.pillWarning,
-              ]}
-            >
-              <Text style={styles.pillText}>
-                {allergen.severity === 'May Contain' ? '⚠ ' : ''}
-                {allergen.name}
-              </Text>
-            </View>
-          ))
-        ) : (
-          <Text style={styles.emptyText}>No allergens detected</Text>
-        )}
-      </View>
-    </View>
-  );
-
-  const renderHealthFlags = () => (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>Health Flags</Text>
-      {analysis.healthFlags.length > 0 ? (
-        analysis.healthFlags.map((flag, index) => (
-          <View key={index} style={styles.healthFlagRow}>
-            <Text
-              style={[
-                styles.healthFlagIcon,
-                flag.type === 'POSITIVE' && styles.positive,
-                flag.type === 'NEGATIVE' && styles.negative,
-                flag.type === 'NEUTRAL' && styles.neutral,
-              ]}
-            >
-              {flag.type === 'POSITIVE'
-                ? '+'
-                : flag.type === 'NEGATIVE'
-                  ? '-'
-                  : '•'}
-            </Text>
-            <Text style={styles.healthFlagText}>{flag.name}</Text>
-            {flag.confidence && (
-              <Text style={styles.confidenceText}>
-                {Math.round(flag.confidence * 100)}%
-              </Text>
-            )}
-          </View>
-        ))
-      ) : (
-        <Text style={styles.emptyText}>No health flags</Text>
-      )}
-    </View>
-  );
-
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Confidence Score */}
+      {analysis.confidence !== undefined && (
+        <View style={styles.confidenceContainer}>
+          <Text style={styles.confidenceLabel}>
+            Analysis Confidence: {Math.round(analysis.confidence * 100)}%
+          </Text>
+        </View>
+      )}
       {/* Meal Title */}
       <View style={styles.fieldContainer}>
         <Text style={styles.label}>Meal Title</Text>
@@ -300,17 +246,6 @@ export const AnalysisForm = ({
 
       {renderIngredientsList()}
       {renderNutritionFacts()}
-      {renderAllergens()}
-      {renderHealthFlags()}
-
-      {/* Confidence Score */}
-      {analysis.confidence !== undefined && (
-        <View style={styles.confidenceContainer}>
-          <Text style={styles.confidenceLabel}>
-            Analysis Confidence: {Math.round(analysis.confidence * 100)}%
-          </Text>
-        </View>
-      )}
     </ScrollView>
   );
 };
@@ -455,62 +390,9 @@ const styles = StyleSheet.create({
     color: '#666',
     minWidth: 20,
   },
-  pillContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  pill: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  pillDanger: {
-    backgroundColor: '#ffebee',
-  },
-  pillWarning: {
-    backgroundColor: '#fff3e0',
-  },
-  pillText: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#333',
-  },
-  healthFlagRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 6,
-  },
-  healthFlagIcon: {
-    width: 24,
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  positive: {
-    color: '#34C759',
-  },
-  negative: {
-    color: '#ff4444',
-  },
-  neutral: {
-    color: '#666',
-  },
-  healthFlagText: {
-    flex: 1,
-    fontSize: 14,
-    color: '#333',
-  },
-  confidenceText: {
-    fontSize: 12,
-    color: '#999',
-  },
-  emptyText: {
-    fontSize: 14,
-    color: '#999',
-    fontStyle: 'italic',
-  },
   confidenceContainer: {
-    marginTop: 8,
+    marginTop: 4,
+    marginBottom: 8,
     padding: 12,
     backgroundColor: '#f0f0f0',
     borderRadius: 8,
