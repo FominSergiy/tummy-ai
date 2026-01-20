@@ -9,7 +9,7 @@ import {
   AnalysisData,
   AnalyzeResponse,
   ImageData,
-  ReanalyzeResponse,
+  // ReanalyzeResponse,
   UploadState,
 } from './ImageAnalyzeContainer.types';
 
@@ -77,33 +77,34 @@ const ImageAnalyzeContainer = () => {
     }
   }, [selectedImage, userPrompt]);
 
-  const handleResubmit = useCallback(async () => {
-    if (!analysisId || !analysisData) return;
+  // TODO: add back if we are considering adding resubmit back
+  // const handleResubmit = useCallback(async () => {
+  //   if (!analysisId || !analysisData) return;
 
-    setUploadState('resubmitting');
-    setError(null);
+  //   setUploadState('resubmitting');
+  //   setError(null);
 
-    try {
-      const response = await apiService.reanalyzeWithEdits<ReanalyzeResponse>(
-        analysisId,
-        {
-          mealTitle: analysisData.mealTitle,
-          mealDescription: analysisData.mealDescription,
-        }
-      );
+  //   try {
+  //     const response = await apiService.reanalyzeWithEdits<ReanalyzeResponse>(
+  //       analysisId,
+  //       {
+  //         mealTitle: analysisData.mealTitle,
+  //         mealDescription: analysisData.mealDescription,
+  //       }
+  //     );
 
-      if (response.success) {
-        setAnalysisData(response.analysis);
-        setUploadState('analysis_ready');
-      }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Reanalysis failed';
-      setError(errorMessage);
-      setUploadState('analysis_ready'); // Stay on analysis screen
-      Alert.alert('Reanalysis Failed', errorMessage);
-    }
-  }, [analysisId, analysisData]);
+  //     if (response.success) {
+  //       setAnalysisData(response.analysis);
+  //       setUploadState('analysis_ready');
+  //     }
+  //   } catch (err) {
+  //     const errorMessage =
+  //       err instanceof Error ? err.message : 'Reanalysis failed';
+  //     setError(errorMessage);
+  //     setUploadState('analysis_ready'); // Stay on analysis screen
+  //     Alert.alert('Reanalysis Failed', errorMessage);
+  //   }
+  // }, [analysisId, analysisData]);
 
   const handleSave = useCallback(async () => {
     if (!analysisId || !analysisData) return;
@@ -200,9 +201,9 @@ const ImageAnalyzeContainer = () => {
           {/* Action Buttons */}
           {hasAnalysis && (
             <AnalysisActions
-              onResubmit={handleResubmit}
+              // onResubmit={handleResubmit}
               onSave={handleSave}
-              isResubmitting={isResubmitting}
+              // isResubmitting={isResubmitting}
               isSaving={isSaving}
             />
           )}
