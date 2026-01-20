@@ -69,9 +69,9 @@ export interface LLMAnalysisResponse {
     potassium?: number;
     additionalNotes?: string;
   };
-  allergens: Alergen[];
-  healthFlags: HealthFlag[];
-  confidence?: number; // Overall analysis confidence
+  allergens?: Alergen[];
+  healthFlags?: HealthFlag[];
+  confidence: number; // Overall analysis confidence
   rawResponse?: any; // Provider-specific raw response
 }
 

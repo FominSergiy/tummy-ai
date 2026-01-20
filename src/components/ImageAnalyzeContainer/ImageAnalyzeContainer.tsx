@@ -9,7 +9,7 @@ import {
   AnalysisData,
   AnalyzeResponse,
   ImageData,
-  ReanalyzeResponse,
+  // ReanalyzeResponse,
   UploadState,
 } from './ImageAnalyzeContainer.types';
 
@@ -21,9 +21,11 @@ const ImageAnalyzeContainer = () => {
   const [analysisId, setAnalysisId] = useState<number | null>(null);
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [userPrompt, setUserPrompt] = useState<string>('');
 
   const handleImageSelect = useCallback((image: ImageData) => {
     setSelectedImage(image);
+
     setUploadState('image_selected');
     // Clear previous analysis if any
     setAnalysisId(null);
@@ -37,6 +39,11 @@ const ImageAnalyzeContainer = () => {
     setAnalysisId(null);
     setAnalysisData(null);
     setError(null);
+    setUserPrompt('');
+  }, []);
+
+  const handlePromptChange = useCallback((text: string) => {
+    setUserPrompt(text);
   }, []);
 
   const handleAnalyze = useCallback(async () => {
@@ -51,13 +58,15 @@ const ImageAnalyzeContainer = () => {
         selectedImage.uri,
         selectedImage.fileName,
         selectedImage.mimeType,
-        true
+        true,
+        userPrompt.trim() || undefined
       );
 
       if (response.success) {
         setAnalysisId(response.analysisId);
         setAnalysisData(response.analysis);
         setUploadState('analysis_ready');
+        setUserPrompt('');
       }
     } catch (err) {
       const errorMessage =
@@ -66,35 +75,36 @@ const ImageAnalyzeContainer = () => {
       setUploadState('error');
       Alert.alert('Analysis Failed', errorMessage);
     }
-  }, [selectedImage]);
+  }, [selectedImage, userPrompt]);
 
-  const handleResubmit = useCallback(async () => {
-    if (!analysisId || !analysisData) return;
+  // TODO: add back if we are considering adding resubmit back
+  // const handleResubmit = useCallback(async () => {
+  //   if (!analysisId || !analysisData) return;
 
-    setUploadState('resubmitting');
-    setError(null);
+  //   setUploadState('resubmitting');
+  //   setError(null);
 
-    try {
-      const response = await apiService.reanalyzeWithEdits<ReanalyzeResponse>(
-        analysisId,
-        {
-          mealTitle: analysisData.mealTitle,
-          mealDescription: analysisData.mealDescription,
-        }
-      );
+  //   try {
+  //     const response = await apiService.reanalyzeWithEdits<ReanalyzeResponse>(
+  //       analysisId,
+  //       {
+  //         mealTitle: analysisData.mealTitle,
+  //         mealDescription: analysisData.mealDescription,
+  //       }
+  //     );
 
-      if (response.success) {
-        setAnalysisData(response.analysis);
-        setUploadState('analysis_ready');
-      }
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Reanalysis failed';
-      setError(errorMessage);
-      setUploadState('analysis_ready'); // Stay on analysis screen
-      Alert.alert('Reanalysis Failed', errorMessage);
-    }
-  }, [analysisId, analysisData]);
+  //     if (response.success) {
+  //       setAnalysisData(response.analysis);
+  //       setUploadState('analysis_ready');
+  //     }
+  //   } catch (err) {
+  //     const errorMessage =
+  //       err instanceof Error ? err.message : 'Reanalysis failed';
+  //     setError(errorMessage);
+  //     setUploadState('analysis_ready'); // Stay on analysis screen
+  //     Alert.alert('Reanalysis Failed', errorMessage);
+  //   }
+  // }, [analysisId, analysisData]);
 
   const handleSave = useCallback(async () => {
     if (!analysisId || !analysisData) return;
@@ -154,6 +164,8 @@ const ImageAnalyzeContainer = () => {
           onImageClear={handleImageClear}
           onAnalyze={handleAnalyze}
           isUploading={isUploading}
+          userPrompt={userPrompt}
+          onPromptChange={handlePromptChange}
         />
       ) : (
         // Analysis ready: Show compact image + form + actions
@@ -189,9 +201,9 @@ const ImageAnalyzeContainer = () => {
           {/* Action Buttons */}
           {hasAnalysis && (
             <AnalysisActions
-              onResubmit={handleResubmit}
+              // onResubmit={handleResubmit}
               onSave={handleSave}
-              isResubmitting={isResubmitting}
+              // isResubmitting={isResubmitting}
               isSaving={isSaving}
             />
           )}

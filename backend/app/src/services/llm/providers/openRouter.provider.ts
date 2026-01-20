@@ -84,11 +84,12 @@ export class OpenRouterProvider implements ILLMProvider {
       },
     ];
 
-    // Add text prompt if provided
+    // Add text prompt if provided (wrapped to identify as user context, not commands)
     if (prompt) {
+      const wrappedPrompt = `[User's description of the food: "${prompt}"]`;
       userContent.push({
         type: 'text',
-        text: prompt,
+        text: wrappedPrompt,
       });
     }
 
@@ -125,8 +126,8 @@ export class OpenRouterProvider implements ILLMProvider {
         mealDescription: parsedResponse.mealDescription,
         ingredients: parsedResponse.ingredients || [],
         nutritionFacts: parsedResponse.nutritionFacts,
-        allergens: parsedResponse.allergens || [],
-        healthFlags: parsedResponse.healthFlags || [],
+        // allergens: parsedResponse.allergens || [],
+        // healthFlags: parsedResponse.healthFlags || [],
         confidence: parsedResponse.confidence,
         rawResponse: {
           provider: 'OpenRouter',

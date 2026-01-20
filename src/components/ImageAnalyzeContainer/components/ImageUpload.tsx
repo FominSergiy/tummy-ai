@@ -11,6 +11,8 @@ interface ImageUploadProps {
   onImageClear: () => void;
   onAnalyze: () => void;
   isUploading?: boolean;
+  userPrompt: string;
+  onPromptChange: (text: string) => void;
 }
 
 const ImageUpload = ({
@@ -19,6 +21,8 @@ const ImageUpload = ({
   onImageClear,
   onAnalyze,
   isUploading = false,
+  userPrompt,
+  onPromptChange,
 }: ImageUploadProps) => {
   const requestPermissions = useCallback(async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -139,6 +143,8 @@ const ImageUpload = ({
           showImagePicker={showImagePicker}
           onImageClear={onImageClear}
           handleAnalyze={handleAnalyze}
+          userPrompt={userPrompt}
+          onPromptChange={onPromptChange}
         />
       ) : (
         <EmptyImageContainer showImagePicker={showImagePicker} />

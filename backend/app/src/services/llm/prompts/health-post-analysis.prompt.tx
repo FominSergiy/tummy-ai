@@ -1,0 +1,9 @@
+allergens array - FDA Big 9: Milk, Eggs, Fish, Shellfish, Tree Nuts, Peanuts, Wheat, Soybeans, Sesame
+- "name": allergen name (string)
+- "severity": "Contains" or "May Contain" (string)
+- "notes": source like "from mayonnaise" (string or omit)
+
+healthFlags array:
+- "name": like "High Protein" or "High Sodium" (string)
+- "type": "POSITIVE" or "NEGATIVE" or "NEUTRAL" (string)
+- "notes": explanation (string or omit)

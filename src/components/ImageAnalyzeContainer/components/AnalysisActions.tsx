@@ -8,23 +8,23 @@ import {
 } from 'react-native';
 
 interface AnalysisActionsProps {
-  onResubmit: () => void;
+  // onResubmit: () => void;
   onSave: () => void;
-  isResubmitting: boolean;
+  // isResubmitting: boolean;
   isSaving: boolean;
 }
 
 export const AnalysisActions = ({
-  onResubmit,
+  // onResubmit,
   onSave,
-  isResubmitting,
+  // isResubmitting,
   isSaving,
 }: AnalysisActionsProps) => {
-  const isDisabled = isResubmitting || isSaving;
+  const isDisabled = isSaving;
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={[styles.resubmitButton, isDisabled && styles.disabledButton]}
         onPress={onResubmit}
         disabled={isDisabled}
@@ -34,7 +34,7 @@ export const AnalysisActions = ({
         ) : (
           <Text style={styles.resubmitText}>Re-submit to LLM</Text>
         )}
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <TouchableOpacity
         style={[styles.saveButton, isDisabled && styles.disabledButton]}
