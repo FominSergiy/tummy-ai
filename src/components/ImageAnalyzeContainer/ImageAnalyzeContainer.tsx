@@ -1,6 +1,6 @@
 import { apiService } from '@/src/services';
 import React, { useCallback, useMemo, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { AnalysisActions } from './components/AnalysisActions';
 import { AnalysisForm } from './components/AnalysisForm';
 import { ImagePreview } from './components/ImagePreview';
@@ -20,7 +20,6 @@ const ImageAnalyzeContainer = () => {
   const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
   const [analysisId, setAnalysisId] = useState<number | null>(null);
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [userPrompt, setUserPrompt] = useState<string>('');
 
   const handleImageSelect = useCallback((image: ImageData) => {
@@ -30,7 +29,6 @@ const ImageAnalyzeContainer = () => {
     // Clear previous analysis if any
     setAnalysisId(null);
     setAnalysisData(null);
-    setError(null);
   }, []);
 
   const handleImageClear = useCallback(() => {
@@ -38,7 +36,6 @@ const ImageAnalyzeContainer = () => {
     setUploadState('initial');
     setAnalysisId(null);
     setAnalysisData(null);
-    setError(null);
     setUserPrompt('');
   }, []);
 
@@ -50,7 +47,6 @@ const ImageAnalyzeContainer = () => {
     if (!selectedImage) return;
 
     setUploadState('uploading');
-    setError(null);
 
     try {
       const response = await apiService.uploadFile<AnalyzeResponse>(
@@ -71,46 +67,15 @@ const ImageAnalyzeContainer = () => {
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Analysis failed';
-      setError(errorMessage);
-      setUploadState('error');
+      setUploadState('image_selected'); // if analysis failed we should allow to re-try
       Alert.alert('Analysis Failed', errorMessage);
     }
   }, [selectedImage, userPrompt]);
-
-  // TODO: add back if we are considering adding resubmit back
-  // const handleResubmit = useCallback(async () => {
-  //   if (!analysisId || !analysisData) return;
-
-  //   setUploadState('resubmitting');
-  //   setError(null);
-
-  //   try {
-  //     const response = await apiService.reanalyzeWithEdits<ReanalyzeResponse>(
-  //       analysisId,
-  //       {
-  //         mealTitle: analysisData.mealTitle,
-  //         mealDescription: analysisData.mealDescription,
-  //       }
-  //     );
-
-  //     if (response.success) {
-  //       setAnalysisData(response.analysis);
-  //       setUploadState('analysis_ready');
-  //     }
-  //   } catch (err) {
-  //     const errorMessage =
-  //       err instanceof Error ? err.message : 'Reanalysis failed';
-  //     setError(errorMessage);
-  //     setUploadState('analysis_ready'); // Stay on analysis screen
-  //     Alert.alert('Reanalysis Failed', errorMessage);
-  //   }
-  // }, [analysisId, analysisData]);
 
   const handleSave = useCallback(async () => {
     if (!analysisId || !analysisData) return;
 
     setUploadState('saving');
-    setError(null);
 
     try {
       await apiService.commitAnalysis(analysisId, {
@@ -127,7 +92,6 @@ const ImageAnalyzeContainer = () => {
       setUploadState('initial');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Save failed';
-      setError(errorMessage);
       setUploadState('analysis_ready'); // Stay on analysis screen
       Alert.alert('Save Failed', errorMessage);
     }
@@ -140,19 +104,25 @@ const ImageAnalyzeContainer = () => {
     []
   );
 
-  const isUploading = uploadState === 'uploading';
-  const isResubmitting = uploadState === 'resubmitting';
-  const isSaving = uploadState === 'saving';
-  const hasAnalysis = uploadState === 'analysis_ready' && analysisData !== null;
-  const isProcessing = isUploading || isResubmitting || isSaving;
+  const { isUploading, isSaving, hasAnalysis, isProcessing } = useMemo(() => {
+    const processingStates: UploadState[] = [
+      'uploading',
+      'resubmitting',
+      'saving',
+    ];
+    return {
+      isUploading: uploadState === 'uploading',
+      isResubmitting: uploadState === 'resubmitting',
+      isSaving: uploadState === 'saving',
+      hasAnalysis: uploadState === 'analysis_ready' && analysisData !== null,
+      isProcessing: processingStates.includes(uploadState),
+    };
+  }, [uploadState, analysisData]);
 
-  const showImageUpload = useMemo(
-    () =>
-      uploadState === 'initial' ||
-      uploadState === 'image_selected' ||
-      uploadState === 'uploading',
-    [uploadState]
-  );
+  const showImageUpload = useMemo(() => {
+    const imageSelectStates = ['initial', 'image_selected', 'uploading'];
+    return imageSelectStates.includes(uploadState);
+  }, [uploadState]);
 
   return (
     <View style={styles.container}>
@@ -177,13 +147,6 @@ const ImageAnalyzeContainer = () => {
             </View>
           )}
 
-          {/* Error Message */}
-          {error && (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          )}
-
           {/* Analysis Form */}
           {hasAnalysis && (
             <ScrollView
@@ -191,7 +154,7 @@ const ImageAnalyzeContainer = () => {
               contentContainerStyle={styles.formContent}
             >
               <AnalysisForm
-                analysis={analysisData}
+                analysis={analysisData as AnalysisData}
                 onChange={handleAnalysisChange}
                 isDisabled={isProcessing}
               />
@@ -226,18 +189,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#e9ecef',
     padding: 12,
-  },
-  errorContainer: {
-    backgroundColor: '#ffebee',
-    padding: 12,
-    marginHorizontal: 16,
-    marginTop: 8,
-    borderRadius: 8,
-  },
-  errorText: {
-    color: '#c62828',
-    fontSize: 14,
-    textAlign: 'center',
   },
   formContainer: {
     flex: 1,
