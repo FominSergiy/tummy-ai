@@ -66,14 +66,27 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
           originalFilename: fileFilename,
         });
 
-        // Step 3: Create analysis record with PENDING status
-        const userId = request.user.userId;
-        const analysis = await prisma.ingredientAnalysis.create({
-          data: {
-            userId,
-            fileKey: uploadResult.fileKey,
-            status: AnalysisStatus.PENDING,
-          },
+        // Step 3: Create analysis record with PENDING status and uncompressed image
+        const { analysis, image } = await prisma.$transaction(async (tx) => {
+          const userId = request.user.userId;
+          const analysis = await tx.ingredientAnalysis.create({
+            data: {
+              userId,
+              status: AnalysisStatus.PENDING,
+            },
+          });
+
+          // create file record
+          const image = await tx.imageUpload.create({
+            data: {
+              userId,
+              analysisId: analysis.id,
+              fileKey: uploadResult.fileKey,
+              type: 'IMAGE',
+            },
+          });
+
+          return { analysis, image };
         });
         analysisId = analysis.id;
 
@@ -89,14 +102,20 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
           originalFilename: `compressed-${fileFilename}`,
         });
 
-        // Update analysis with compressed file key
-        await prisma.ingredientAnalysis.update({
-          where: { id: analysisId },
-          data: {
-            compressedFileKey: compressedUploadResult.fileKey,
-            status: AnalysisStatus.ANALYZING,
-            analyzedAt: new Date(),
-          },
+        // Step 5. Update analysis and image with compressed file key
+        await prisma.$transaction(async (tx) => {
+          await tx.ingredientAnalysis.update({
+            where: { id: analysis.id },
+            data: {
+              status: AnalysisStatus.ANALYZING,
+              analyzedAt: new Date(),
+            },
+          });
+
+          await tx.imageUpload.update({
+            where: { id: image.id },
+            data: { compressedFileKey: compressedUploadResult.fileKey },
+          });
         });
 
         fastify.log.info(
@@ -104,7 +123,7 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
             `(${compressionResult.compressionRatio.toFixed(2)}x reduction)`
         );
 
-        // Step 5: Send to LLM for analysis
+        // Step 6: Send to LLM for analysis
         const llmResponse = await llmService.analyzeImage({
           imageBuffer: compressionResult.buffer,
           imageMimeType: 'image/jpeg',
@@ -116,7 +135,7 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
           throw new NonFoodImageError(llmResponse.detectedContent);
         }
 
-        // Step 6: Update analysis with LLM results
+        // Step 7: Update analysis with LLM results
         // Extract key nutrition fields for filtering
         const totalCalories = llmResponse.nutritionFacts?.calories || null;
         const totalSugar = llmResponse.nutritionFacts?.totalSugars || null;
@@ -139,7 +158,7 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
 
         const processingTime = Date.now() - startTime;
 
-        // Step 7: Return results to user for validation
+        // Step 8: Return results to user for validation
         return reply.code(200).send({
           success: true,
           analysisId: analysisId,
@@ -208,12 +227,17 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
           return reply.code(400).send({ error: 'analysisId is required' });
         }
 
-        // Get analysis
+        // Get analysis and image
         const analysis = await prisma.ingredientAnalysis.findUnique({
           where: { id: analysisId },
         });
 
-        if (!analysis) {
+        // TODO: extend if more than 1 image
+        const image = await prisma.imageUpload.findMany({
+          where: { id: analysisId },
+        });
+
+        if (!analysis || !image) {
           return reply.code(404).send({ error: 'Analysis not found' });
         }
 
@@ -235,19 +259,22 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
           },
         });
 
-        // After successful DB commit, delete temp files from S3
-        try {
-          await s3Service.deleteFromTemp(analysis.fileKey);
-          if (analysis.compressedFileKey) {
-            await s3Service.deleteFromTemp(analysis.compressedFileKey);
-          }
-        } catch (s3Error) {
-          // Log but don't fail the request - DB data is saved
-          fastify.log.error({
-            error: s3Error,
-            msg: 'Failed to delete temp files',
-          });
-        }
+        //TODO: uncommit if we want to drop images sent by the users - store for now
+        // // After successful DB commit, delete temp files from S3
+        // try {
+        //   await s3Service.deleteFromTemp(image[0].fileKey);
+        //   if (image[0].compressedFileKey) {
+        //     await s3Service.deleteFromTemp(image[0].compressedFileKey);
+        //   }
+        //   // delete the db row as well
+
+        // } catch (s3Error) {
+        //   // Log but don't fail the request - DB data is saved
+        //   fastify.log.error({
+        //     error: s3Error,
+        //     msg: 'Failed to delete temp files',
+        //   });
+        // }
 
         return reply.code(200).send({
           success: true,
@@ -283,8 +310,11 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
         const analysis = await prisma.ingredientAnalysis.findUnique({
           where: { id: analysisId },
         });
+        const image = await prisma.imageUpload.findMany({
+          where: { analysisId },
+        });
 
-        if (!analysis) {
+        if (!analysis || !image) {
           return reply.code(404).send({ error: 'Analysis not found' });
         }
 
@@ -303,9 +333,9 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
 
         // Delete temp files from S3
         try {
-          await s3Service.deleteFromTemp(analysis.fileKey);
-          if (analysis.compressedFileKey) {
-            await s3Service.deleteFromTemp(analysis.compressedFileKey);
+          await s3Service.deleteFromTemp(image[0].fileKey);
+          if (image[0].compressedFileKey) {
+            await s3Service.deleteFromTemp(image[0].compressedFileKey);
           }
         } catch (s3Error) {
           fastify.log.error({
