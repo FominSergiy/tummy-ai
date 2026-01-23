@@ -1,21 +1,12 @@
-import { compare, hash } from 'bcrypt';
 import { FastifyInstance, HookHandlerDoneFunction } from 'fastify';
 import { prisma } from '../../../prisma/client.js';
+import { hashPassword, verifyPassword } from '../services/auth.service.js';
 import { jwtService } from '../services/index.js';
 
 type TBody = { email: string; password: string };
 type TResponse = {
   201: { success: boolean };
   409: { error: string };
-};
-
-const hashPassword = async (plainPassword: string) => {
-  const saltRounds = 6;
-  return await hash(plainPassword, saltRounds);
-};
-
-const verifyPassword = async (plain: string, hashed: string) => {
-  return await compare(plain, hashed);
 };
 
 const validateBody = (

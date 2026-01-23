@@ -14,6 +14,24 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="analyses"
+        options={{
+          title: 'History',
+          tabBarIcon: ({ color }) => (
+            <FontAwesome size={28} name="list" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="logout"
+        options={{
+          title: 'Logout',
+          tabBarIcon: ({ color }) => (
+            <FontAwesome size={28} name="cog" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="settings"
         options={{
           title: 'Settings',

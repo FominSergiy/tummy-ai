@@ -23,6 +23,7 @@
 - Start database: `yarn services:start:daemon` or `docker-compose -f backend/docker-compose.yml up -d postgres`
 - Stop database: `yarn services:stop` or `docker-compose -f backend/docker-compose.yml down`
 - **Schema management will be handled with Prisma ORM**
+- **Use string-based IDs** with `uuid()` as default for all Prisma schema models
 
 ## S3 Storage (MinIO)
 

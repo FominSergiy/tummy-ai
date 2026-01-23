@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
 import {
+  historyRoutes,
   ingridientRouts,
   loginRoute,
   pingRoutes,
@@ -37,6 +38,7 @@ const start = async () => {
     await fastify.register(loginRoute);
     await fastify.register(storageRoutes);
     await fastify.register(ingridientRouts);
+    await fastify.register(historyRoutes);
 
     await fastify.listen({ port: 3000 });
   } catch (err) {

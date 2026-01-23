@@ -25,6 +25,22 @@ export interface ApiError {
   error: string;
 }
 
+export interface AnalysisHistoryItem {
+  id: number;
+  mealTitle: string | null;
+  totalCalories: number | null;
+  committedAt: string | null;
+}
+
+export interface AnalysisHistoryResponse {
+  success: boolean;
+  data: AnalysisHistoryItem[];
+  pagination: {
+    nextCursor: string | null;
+    hasMore: boolean;
+  };
+}
+
 interface FetchOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   data?: unknown;
@@ -229,6 +245,38 @@ class ApiService {
       data: { analysisId, reason },
       requiresAuth: true,
     });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        await TokenStorage.removeToken();
+      }
+      const error = await this.parseErrorResponse(response);
+      throw new Error(error);
+    }
+
+    return response.json();
+  };
+
+  /**
+   * Fetch paginated analysis history
+   */
+  getAnalysisHistory = async (
+    filter: 'today' | 'historical' = 'today',
+    cursor?: string,
+    limit: number = 10
+  ): Promise<AnalysisHistoryResponse> => {
+    const params = new URLSearchParams({ filter, limit: String(limit) });
+    if (cursor !== undefined) {
+      params.append('cursor', String(cursor));
+    }
+
+    const response = await this.fetchApi(
+      `/ingredients/history?${params.toString()}`,
+      {
+        method: 'GET',
+        requiresAuth: true,
+      }
+    );
 
     if (!response.ok) {
       if (response.status === 401) {
