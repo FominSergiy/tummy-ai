@@ -28,8 +28,8 @@ enum AnalysisStatus {
 }
 
 model FileUpload {
-    id       Int      @id @default(autoincrement())
-    userId   Int      @map("user_id")
+    id       String   @id @default(uuid())
+    userId   String   @map("user_id")
     type     FileType
     filePath String   @map("file_path")
     user     User?    @relation(fields: [userId], references: [id])
@@ -39,8 +39,8 @@ model FileUpload {
 }
 
 model IngredientAnalysis {
-    id                Int            @id @default(autoincrement())
-    userId            Int            @map("user_id")
+    id                String         @id @default(uuid())
+    userId            String         @map("user_id")
     fileKey           String         @map("file_key")
     compressedFileKey String?        @map("compressed_file_key")
     status            AnalysisStatus @default(PENDING)
@@ -52,10 +52,10 @@ model IngredientAnalysis {
     // Extracted searchable fields (for pre-filtering before sending to LLM)
     mealTitle       String?  @map("meal_title")
     mealDescription String?  @map("meal_description")
-    totalCalories Decimal? @map("total_calories") @db.Decimal(10, 2)
-    totalSugar    Decimal? @map("total_sugar") @db.Decimal(10, 2)
-    totalCarbs    Decimal? @map("total_carbs") @db.Decimal(10, 2)
-    totalProtein  Decimal? @map("total_protein") @db.Decimal(10, 2)
+    totalCalories   Decimal? @map("total_calories") @db.Decimal(10, 2)
+    totalSugar      Decimal? @map("total_sugar") @db.Decimal(10, 2)
+    totalCarbs      Decimal? @map("total_carbs") @db.Decimal(10, 2)
+    totalProtein    Decimal? @map("total_protein") @db.Decimal(10, 2)
 
     createdAt   DateTime  @default(now()) @map("created_at")
     analyzedAt  DateTime? @map("analyzed_at")
@@ -70,7 +70,7 @@ model IngredientAnalysis {
 }
 
 model User {
-    id                 Int                  @id @default(autoincrement())
+    id                 String               @id @default(uuid())
     email              String               @unique
     password           String
     fileUploads        FileUpload[]

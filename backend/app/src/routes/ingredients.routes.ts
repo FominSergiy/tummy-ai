@@ -12,25 +12,15 @@ import { parseMultipartWithPrompt } from '../utils/route.utils.js';
 const ROOT_ROUTE = 'ingredients';
 
 interface CommitBody {
-  analysisId: number;
+  analysisId: string;
   overrides?: {
     mealTitle?: string;
     mealDescription?: string;
   };
 }
-
 interface DeclineBody {
-  analysisId: number;
+  analysisId: string;
   reason?: string;
-}
-
-interface ReanalyzeBody {
-  analysisId: number;
-  userEdits: {
-    mealTitle?: string;
-    mealDescription?: string;
-    additionalContext?: string;
-  };
 }
 
 export const ingridientRouts = async (fastify: FastifyInstance) => {
@@ -49,7 +39,7 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
     { preHandler: authenticate },
     async (request, reply) => {
       const startTime = Date.now();
-      let analysisId: number | null = null;
+      let analysisId: string | null = null;
 
       try {
         // Step 1: Get file and prompt from multipart request
@@ -203,150 +193,6 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
     }
   );
 
-  // TODO: uncomment if we come back to this feature
-  // /**
-  //  * POST /ingredients/reanalyze
-  //  * Re-analyze with user-provided hints/corrections
-  //  */
-  // fastify.post<{ Body: ReanalyzeBody }>(
-  //   `/${ROOT_ROUTE}/reanalyze`,
-  //   { preHandler: authenticate },
-  //   async (request, reply) => {
-  //     const startTime = Date.now();
-
-  //     try {
-  //       const { analysisId, userEdits } = request.body;
-
-  //       if (!analysisId) {
-  //         return reply.code(400).send({ error: 'analysisId is required' });
-  //       }
-
-  //       // Get existing analysis
-  //       const analysis = await prisma.ingredientAnalysis.findUnique({
-  //         where: { id: analysisId },
-  //       });
-
-  //       if (!analysis) {
-  //         return reply.code(404).send({ error: 'Analysis not found' });
-  //       }
-
-  //       if (analysis.status !== AnalysisStatus.COMPLETED) {
-  //         return reply.code(400).send({
-  //           error: `Cannot reanalyze with status: ${analysis.status}`,
-  //         });
-  //       }
-
-  //       // Verify user owns this analysis
-  //       if (analysis.userId !== request.user.userId) {
-  //         return reply.code(403).send({ error: 'Access denied' });
-  //       }
-
-  //       // Get compressed image from S3
-  //       if (!analysis.compressedFileKey) {
-  //         return reply.code(400).send({
-  //           error: 'No compressed image available for reanalysis',
-  //         });
-  //       }
-
-  //       const tempKey = `temp/${analysis.compressedFileKey}`;
-  //       const imageData = await s3Service.retrieve(tempKey);
-
-  //       if (!imageData) {
-  //         return reply.code(404).send({
-  //           error: 'Image file not found. It may have expired.',
-  //         });
-  //       }
-
-  //       // Convert stream to buffer
-  //       const chunks: Buffer[] = [];
-  //       for await (const chunk of imageData.stream) {
-  //         chunks.push(Buffer.from(chunk));
-  //       }
-  //       const imageBuffer = Buffer.concat(chunks);
-
-  //       // Update status to ANALYZING
-  //       await prisma.ingredientAnalysis.update({
-  //         where: { id: analysisId },
-  //         data: {
-  //           status: AnalysisStatus.ANALYZING,
-  //           analyzedAt: new Date(),
-  //         },
-  //       });
-
-  //       // Call LLM with hints
-  //       const llmResponse = await llmService.analyzeImage({
-  //         imageBuffer,
-  //         imageMimeType: imageData.contentType,
-  //         hints: {
-  //           mealTitle: userEdits.mealTitle,
-  //           mealDescription: userEdits.mealDescription,
-  //           additionalContext: userEdits.additionalContext,
-  //         },
-  //       });
-
-  //       // Validate that image contains food
-  //       if (!llmResponse.isFood) {
-  //         throw new NonFoodImageError(llmResponse.detectedContent);
-  //       }
-
-  //       // Update analysis with new LLM results
-  //       const totalCalories = llmResponse.nutritionFacts?.calories || null;
-  //       const totalSugar = llmResponse.nutritionFacts?.totalSugars || null;
-  //       const totalCarbs = llmResponse.nutritionFacts?.totalCarbs || null;
-  //       const totalProtein = llmResponse.nutritionFacts?.protein || null;
-
-  //       await prisma.ingredientAnalysis.update({
-  //         where: { id: analysisId },
-  //         data: {
-  //           analysisData: llmResponse as object,
-  //           mealTitle: llmResponse.mealTitle,
-  //           mealDescription: llmResponse.mealDescription,
-  //           totalCalories,
-  //           totalSugar,
-  //           totalCarbs,
-  //           totalProtein,
-  //           status: AnalysisStatus.COMPLETED,
-  //         },
-  //       });
-
-  //       const processingTime = Date.now() - startTime;
-
-  //       return reply.code(200).send({
-  //         success: true,
-  //         analysisId,
-  //         provider: llmService.getProviderName(),
-  //         processingTimeMs: processingTime,
-  //         analysis: {
-  //           mealTitle: llmResponse.mealTitle,
-  //           mealDescription: llmResponse.mealDescription,
-  //           ingredients: llmResponse.ingredients,
-  //           nutritionFacts: llmResponse.nutritionFacts,
-  //           allergens: llmResponse.allergens,
-  //           healthFlags: llmResponse.healthFlags,
-  //           confidence: llmResponse.confidence,
-  //         },
-  //         message: 'Reanalysis complete. Review and commit or decline.',
-  //       });
-  //     } catch (error) {
-  //       fastify.log.error(error);
-
-  //       // Handle non-food image error with specific response
-  //       if (error instanceof NonFoodImageError) {
-  //         return reply.code(400).send({
-  //           error: 'Not a food image',
-  //           message: 'The uploaded image does not appear to contain food.',
-  //           detectedContent: error.detectedContent,
-  //         });
-  //       }
-
-  //       return reply.code(500).send({
-  //         error: 'Reanalysis failed',
-  //         message: error instanceof Error ? error.message : 'Unknown error',
-  //       });
-  //     }
-  //   }
-  // );
-
   /**
    * POST /ingredients/commit
    * User validates results - save to DB, delete temp images
@@ -492,12 +338,7 @@ export const ingridientRouts = async (fastify: FastifyInstance) => {
     { preHandler: authenticate },
     async (request, reply) => {
       try {
-        const analysisId = parseInt(request.params.analysisId);
-
-        if (isNaN(analysisId)) {
-          return reply.code(400).send({ error: 'Invalid analysisId' });
-        }
-
+        const { analysisId } = request.params;
         const analysis = await prisma.ingredientAnalysis.findUnique({
           where: { id: analysisId },
         });

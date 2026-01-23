@@ -7,7 +7,7 @@ class JwtService {
    * Generate a JWT token for authenticated user
    */
   generateToken(payload: {
-    userId: number;
+    userId: string;
     email: string;
     timestamp: EpochTimeStamp;
   }) {
