@@ -2,7 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { jwtService } from '../services/index.js';
 
 export interface JwtPayload {
-  userId: number;
+  userId: string;
   email: string;
   timestamp: number;
   iat: number;
