@@ -6,11 +6,17 @@ interface AnalysisRowProps {
 }
 
 export const AnalysisRow = ({ item }: AnalysisRowProps) => {
+  const commitDate = item.committedAt;
+  const commitTime = commitDate
+    ? new Date(commitDate).toLocaleTimeString('en-US', { timeStyle: 'short' })
+    : null;
   return (
     <View style={styles.container}>
       <Text style={styles.mealTitle} numberOfLines={1}>
         {item.mealTitle || 'Untitled Meal'}
       </Text>
+      <Text style={styles.time}>{commitTime !== null ? commitTime : '--'}</Text>
+
       <Text style={styles.calories}>
         {item.totalCalories !== null ? `${item.totalCalories} kcal` : '--'}
       </Text>
@@ -32,6 +38,12 @@ const styles = StyleSheet.create({
   mealTitle: {
     fontSize: 16,
     color: '#333',
+    flex: 1,
+    marginRight: 12,
+  },
+  time: {
+    fontSize: 14,
+    color: '#595959',
     flex: 1,
     marginRight: 12,
   },
