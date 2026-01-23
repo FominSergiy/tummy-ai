@@ -8,7 +8,7 @@ import { EmptyState } from './components/EmptyState';
 import { FilterToggle } from './components/FilterToggle';
 import { LoadingFooter } from './components/LoadingFooter';
 
-const PAGE_SIZE = 2;
+const PAGE_SIZE = 10;
 
 export const AnalysisListContainer = () => {
   const [filter, setFilter] = useState<FilterMode>('today');
@@ -21,8 +21,13 @@ export const AnalysisListContainer = () => {
   const filterRef = useRef(filter);
   filterRef.current = filter;
 
+  const fetchingRef = useRef(false);
+
   const fetchPage = useCallback(
     async (currentCursor?: string, isFirstPage = false) => {
+      if (fetchingRef.current) return;
+      fetchingRef.current = true;
+
       if (isFirstPage) {
         setIsLoading(true);
       } else {
@@ -52,6 +57,7 @@ export const AnalysisListContainer = () => {
       } finally {
         setIsLoading(false);
         setIsLoadingMore(false);
+        fetchingRef.current = false;
       }
     },
     []
