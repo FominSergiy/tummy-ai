@@ -1,12 +1,15 @@
 import { ImageAnalyzeContainer } from '@/src/components';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
+import { ProtectedRoute } from '../../components/ProtectedRoute';
 
 export default function HomeTab() {
   return (
-    <View style={styles.container}>
-      <ImageAnalyzeContainer />
-    </View>
+    <ProtectedRoute>
+      <View style={styles.container}>
+        <ImageAnalyzeContainer />
+      </View>
+    </ProtectedRoute>
   );
 }
 
